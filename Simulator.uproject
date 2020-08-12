@@ -5,7 +5,7 @@
 	"Description": "",
 	"Modules": [
 		{
-			"Name": "Simulador",
+			"Name": "Simulator",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}
