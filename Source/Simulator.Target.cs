@@ -3,12 +3,12 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class SimuladorTarget : TargetRules
+public class SimulatorTarget : TargetRules
 {
-	public SimuladorTarget( TargetInfo Target) : base(Target)
+	public SimulatorTarget( TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.AddRange( new string[] { "Simulador" } );
+		ExtraModuleNames.AddRange( new string[] { "Simulator" } );
 	}
 }
