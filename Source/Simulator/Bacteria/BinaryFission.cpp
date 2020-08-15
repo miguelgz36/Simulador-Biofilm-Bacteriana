@@ -15,6 +15,7 @@
 
 #define UPPER_BOUND_ROTATION 40.0f
 #define LOWER_BOUND_ROTATION -40.0f
+#define PI 3.141593
 
 // Sets default values for this component's properties
 UBinaryFission::UBinaryFission()
@@ -59,9 +60,11 @@ void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* O
 	UWorld* World = Owner->GetWorld();
 
 	if ((CurrentRotation.Yaw >= 0.0f && CurrentRotation.Yaw <= 10.0f) ||
+		(CurrentRotation.Yaw <= 0.0f && CurrentRotation.Yaw >= -10.0f) ||
 		(CurrentRotation.Yaw >= 80.0f && CurrentRotation.Yaw <= 100.0f) ||
-		(CurrentRotation.Yaw >= 170.0f && CurrentRotation.Yaw <= 190.0f) ||
-		(CurrentRotation.Yaw >= 260.0f && CurrentRotation.Yaw <= 280.0f)) {
+		(CurrentRotation.Yaw <= -80.0f && CurrentRotation.Yaw >= -100.0f) ||
+		(CurrentRotation.Yaw >= 170.0f && CurrentRotation.Yaw <= 180.0f) ||
+		(CurrentRotation.Yaw <= -170.0f && CurrentRotation.Yaw >= -180.0f)) {
 
 		EasyFission(CurrentLocation, CurrentRotation, ActorToSpawn, Length, Width, World);
 
@@ -74,13 +77,15 @@ void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* O
 
 void UBinaryFission::EasyFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, float Length, float Width, UWorld* World) {
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("EasyFission")));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("EasyFission")));
 
 	float X, Y, Z;
 	float Distance = Length;
 
 	if ((CurrentRotation.Yaw >= 0.0f && CurrentRotation.Yaw <= 10.0f) ||
-		(CurrentRotation.Yaw >= 170.0f && CurrentRotation.Yaw <= 190.0f)) {
+		(CurrentRotation.Yaw <= 0.0f && CurrentRotation.Yaw >= -10.0f) ||
+		(CurrentRotation.Yaw >= 170.0f && CurrentRotation.Yaw <= 180.0f) ||
+		(CurrentRotation.Yaw <= -170.0f && CurrentRotation.Yaw >= -180.0f)) {
 
 		//X constant and Y constant
 		X = CurrentLocation.X;
@@ -181,8 +186,38 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 	float X1 = CurrentLocation.X;
 	float Y1 = CurrentLocation.Y;
 
-	float X2 = X1 + FGenericPlatformMath::Cos(CurrentRotation.Yaw);
-	float Y2 = Y1 + FMath::Sin(CurrentRotation.Yaw);
+	float X2, Y2;
+
+	if (CurrentRotation.Yaw > 0.0f && CurrentRotation.Yaw < 90.0f) {
+		float Angle = CurrentRotation.Yaw * PI / 180;
+		X2 = X1 - FGenericPlatformMath::Cos(Angle);
+		Y2 = Y1 + FMath::Sin(Angle);
+		/*float* sin = new float();
+			float* cos = new float();
+		FMath::SinCos(sin, cos, Angle);*/
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Cos: %f, Sin: %f"), *cos, *sin));
+	}
+	else {
+		if (CurrentRotation.Yaw > 90.0f && CurrentRotation.Yaw < 180.0f) {
+			float AngleComplement = 180.0f - CurrentRotation.Yaw;
+			float Angle = AngleComplement * PI / 180;
+			X2 = X1 + FGenericPlatformMath::Cos(Angle);
+			Y2 = Y1 + FMath::Sin(Angle);
+		}
+		else {
+			if (CurrentRotation.Yaw < 0.0f && CurrentRotation.Yaw > -90.0f) {
+				float Angle = -CurrentRotation.Yaw * PI / 180;
+				X2 = X1 - FGenericPlatformMath::Cos(Angle);
+				Y2 = Y1 - FMath::Sin(Angle);
+			}
+			else { //CurrentRotation.Yaw < -90.0f && CurrentRotation.Yaw > -180.0f				
+				float AngleComplement = 180.0f - (-CurrentRotation.Yaw);
+				float Angle = AngleComplement * PI / 180;
+				X2 = X1 + FGenericPlatformMath::Cos(Angle);
+				Y2 = Y1 - FMath::Sin(Angle);
+			}
+		}
+	}
 
 	float Slope = (Y2 - Y1) / (X2 - X1);
 	float Intercept = Y1 - Slope * X1;
@@ -237,16 +272,6 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 }
 
 float UBinaryFission::ComputeX1(float B, float Slope, float U, float V, float D) {
-	float X;
-	X = (-FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U +
-		2 * B * V + FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2) +
-		FGenericPlatformMath::Pow(D, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
-		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2))
-		- B * Slope + Slope * V + U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
-	return X;
-}
-
-float UBinaryFission::ComputeY1(float B, float Slope, float U, float V, float D) {
 	float Y;
 	Y = (-Slope * FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U
 		+ 2 * B * V + FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2)
@@ -256,16 +281,17 @@ float UBinaryFission::ComputeY1(float B, float Slope, float U, float V, float D)
 	return Y;
 }
 
-float UBinaryFission::ComputeX2(float B, float Slope, float U, float V, float D) {
+float UBinaryFission::ComputeY1(float B, float Slope, float U, float V, float D) {
 	float X;
-	X = (FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U + 2 * B * V
-		+ FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2) + FGenericPlatformMath::Pow(D, 2)
-		- FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2) + 2 * Slope * U * V
-		- FGenericPlatformMath::Pow(V, 2)) - B * Slope + Slope * V + U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
+	X = (-FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U +
+		2 * B * V + FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2) +
+		FGenericPlatformMath::Pow(D, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
+		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2))
+		- B * Slope + Slope * V + U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
 	return X;
 }
 
-float UBinaryFission::ComputeY2(float B, float Slope, float U, float V, float D) {
+float UBinaryFission::ComputeX2(float B, float Slope, float U, float V, float D) {
 	float Y;
 	Y = (Slope * FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U
 		+ 2 * B * V + FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2)
@@ -273,6 +299,15 @@ float UBinaryFission::ComputeY2(float B, float Slope, float U, float V, float D)
 		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2)) + B + FGenericPlatformMath::Pow(Slope, 2) * V
 		+ Slope * U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
 	return Y;
+}
+
+float UBinaryFission::ComputeY2(float B, float Slope, float U, float V, float D) {
+	float X;
+	X = (FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U + 2 * B * V
+		+ FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2) + FGenericPlatformMath::Pow(D, 2)
+		- FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2) + 2 * Slope * U * V
+		- FGenericPlatformMath::Pow(V, 2)) - B * Slope + Slope * V + U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
+	return X;
 }
 
 void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, UWorld* World, float Length, float Width) {
