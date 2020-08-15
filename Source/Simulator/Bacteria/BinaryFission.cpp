@@ -48,17 +48,14 @@ void UBinaryFission::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* Owner, float Length, float Width, UObject* ObjectWorld) {
 
-	//FVector CurrentLocation = GetOwner()->GetActorLocation();
-	//FRotator CurrentRotation = GetOwner()->GetActorRotation();
-
+	//get current location and rotation of this bacterium
 	FVector CurrentLocation = Owner->GetActorLocation();
 	FRotator CurrentRotation = Owner->GetActorRotation();
 
-	//ComplexFission(CurrentLocation, CurrentRotation);
-
-	//UWorld* World = Cast<UWorld>(ObjectWorld);
+	//get reference of the world
 	UWorld* World = Owner->GetWorld();
 
+	//if rotation is between one this ranges, then the location for binary fission is found in a simple way
 	if ((CurrentRotation.Yaw >= 0.0f && CurrentRotation.Yaw <= 10.0f) ||
 		(CurrentRotation.Yaw <= 0.0f && CurrentRotation.Yaw >= -10.0f) ||
 		(CurrentRotation.Yaw >= 80.0f && CurrentRotation.Yaw <= 100.0f) ||
@@ -69,7 +66,8 @@ void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* O
 		EasyFission(CurrentLocation, CurrentRotation, ActorToSpawn, Length, Width, World);
 
 	}
-	else {
+	else { //if rotation is not between the previous ranges, then the location for binary fission
+		//is found using some geometrical formulas
 		ComplexFission(CurrentLocation, CurrentRotation, ActorToSpawn, Length, Width, World);
 	}
 
