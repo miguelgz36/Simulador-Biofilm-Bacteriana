@@ -272,42 +272,42 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 }
 
 float UBinaryFission::ComputeX1(float B, float Slope, float U, float V, float D) {
-	float Y;
-	Y = (-Slope * FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U
+	float X;
+	X = (-Slope * FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U
 		+ 2 * B * V + FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2)
 		+ FGenericPlatformMath::Pow(D, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
 		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2))
 		+ B + FGenericPlatformMath::Pow(Slope, 2) * V + Slope * U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
-	return Y;
+	return X;
 }
 
 float UBinaryFission::ComputeY1(float B, float Slope, float U, float V, float D) {
-	float X;
-	X = (-FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U +
+	float Y;
+	Y = (-FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U +
 		2 * B * V + FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2) +
 		FGenericPlatformMath::Pow(D, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
 		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2))
 		- B * Slope + Slope * V + U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
-	return X;
+	return Y;
 }
 
 float UBinaryFission::ComputeX2(float B, float Slope, float U, float V, float D) {
-	float Y;
-	Y = (Slope * FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U
+	float X;
+	X = (Slope * FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U
 		+ 2 * B * V + FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2)
 		+ FGenericPlatformMath::Pow(D, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
 		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2)) + B + FGenericPlatformMath::Pow(Slope, 2) * V
 		+ Slope * U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
-	return Y;
+	return X;
 }
 
 float UBinaryFission::ComputeY2(float B, float Slope, float U, float V, float D) {
-	float X;
-	X = (FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U + 2 * B * V
+	float Y;
+	Y = (FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U + 2 * B * V
 		+ FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2) + FGenericPlatformMath::Pow(D, 2)
 		- FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2) + 2 * Slope * U * V
 		- FGenericPlatformMath::Pow(V, 2)) - B * Slope + Slope * V + U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
-	return X;
+	return Y;
 }
 
 void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, UWorld* World, float Length, float Width) {
@@ -321,18 +321,36 @@ void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotati
 	float LOWER_ACCEPTABLE_BOUND = -Width;
 
 	float TempX = FMath::RandRange(LOWER_BOUND, UPPER_BOUND);
-	while (TempX >= LOWER_ACCEPTABLE_BOUND && TempX <= UPPER_ACCEPTABLE_BOUND) {
+	while (TempX == 0) {
 		TempX = FMath::RandRange(LOWER_BOUND, UPPER_BOUND);
+	}
+	if (TempX >= LOWER_ACCEPTABLE_BOUND && TempX <= UPPER_ACCEPTABLE_BOUND) {
+		if (TempX >= LOWER_ACCEPTABLE_BOUND && TempX <0) {
+			TempX = FMath::RandRange(LOWER_BOUND, LOWER_ACCEPTABLE_BOUND+1);
+		}
+		else {
+			TempX = FMath::RandRange(UPPER_ACCEPTABLE_BOUND+1, UPPER_BOUND);
+		}
+		//TempX = FMath::RandRange(LOWER_BOUND, UPPER_BOUND);
 	}
 	float XPoint = CurrentLocation.X + TempX;
 
 	float TempY = FMath::RandRange(LOWER_BOUND, UPPER_BOUND);
-	while (TempY >= LOWER_ACCEPTABLE_BOUND && TempX <= UPPER_ACCEPTABLE_BOUND) {
+	while (TempY == 0) {
 		TempY = FMath::RandRange(LOWER_BOUND, UPPER_BOUND);
+	}
+	if (TempY >= LOWER_ACCEPTABLE_BOUND && TempX <= UPPER_ACCEPTABLE_BOUND) {
+		if (TempY >= LOWER_ACCEPTABLE_BOUND && TempY < 0) {
+			TempY = FMath::RandRange(LOWER_BOUND, LOWER_ACCEPTABLE_BOUND + 1);
+		}
+		else {
+			TempY = FMath::RandRange(UPPER_ACCEPTABLE_BOUND + 1, UPPER_BOUND);
+		}
+		//TempY = FMath::RandRange(LOWER_BOUND, UPPER_BOUND);
 	}
 	float YPoint = CurrentLocation.Y + TempY;
 
-	float TempZ = FMath::RandRange(16.0f, 20.0f);
+	float TempZ = FMath::RandRange(Width, Width+Width*(1/4));
 	float ZPoint = CurrentLocation.Z + TempZ;
 
 	FVector Location(XPoint, YPoint, ZPoint);
