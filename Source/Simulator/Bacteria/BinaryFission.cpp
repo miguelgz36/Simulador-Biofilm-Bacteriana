@@ -68,7 +68,8 @@ void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* O
 }
 
 //Spawns a bacterium on the same straight line of the mother cell, for angles in Z axis near to 0°, 90° and 180° 
-void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, float Length, float Width, UWorld* World) {
+void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, 
+	float Length, float Width, UWorld* World) {
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("EasyFission")));
 
@@ -179,7 +180,8 @@ void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRota
 
 //Spawns a bacterium using the intersections between a line and a circumference as center for the new bacterium
 //for mother cells with rotation angles in Z axis not included in the function SimpleFission 
-void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, float Length, float Width, UWorld* World) {
+void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, 
+	float Length, float Width, UWorld* World) {
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ComplexFission")));
 
@@ -338,7 +340,8 @@ float UBinaryFission::ComputeY2(float B, float Slope, float U, float V, float R)
 }
 
 //Spawns a bacterium within a sorrounding area to the mother cell
-void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, UWorld* World, float Length, float Width) {
+void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, 
+	UWorld* World, float Length, float Width) {
 
 	float UPPER_BOUND = Length;
 	float LOWER_BOUND = -Length;

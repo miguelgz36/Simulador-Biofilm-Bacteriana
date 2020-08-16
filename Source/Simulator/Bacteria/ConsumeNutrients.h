@@ -17,7 +17,11 @@ public:
 	UConsumeNutrients();
 
 	UFUNCTION(BlueprintCallable, Category = "Analytics")
-		static float GetNutrients(float AvailableNutrients, float EnergyLevel);
+		static float GetNutrients(float AvailableNutrients, float EnergyLevel, float NutrientAbsorptionRate, 
+			float MaximumEnergyLevel);
+
+	UFUNCTION(BlueprintCallable, Category = "Analytics")
+		static float UpdateNutrientAbsorptionRate(float EnergyLevel);
 
 protected:
 	// Called when the game starts
