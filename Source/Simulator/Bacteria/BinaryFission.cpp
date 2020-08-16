@@ -46,7 +46,7 @@ void UBinaryFission::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	// ...
 }
 
-void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* Owner, float Length, float Width, UObject* ObjectWorld) {
+void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* Owner, float Length, float Width) {
 
 	//get current location and rotation of this bacterium
 	FVector CurrentLocation = Owner->GetActorLocation();

@@ -17,8 +17,8 @@ public:
 	UBinaryFission();
 
 	//UFUNCTION(BlueprintCallable, Category = "Analytics", meta = (WorldContext = "ObjectWorld"))
-	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject", CallableWithoutWorldContext))
-		static void DoBinaryFission(TSubclassOf<AActor> ActorReference, AActor* Owner, float Length, float Width, UObject* ObjectWorld);
+	UFUNCTION(BlueprintCallable, Category = "Analytics")
+		static void DoBinaryFission(TSubclassOf<AActor> ActorReference, AActor* Owner, float Length, float Width);
 
 private:
 
