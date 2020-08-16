@@ -2,17 +2,10 @@
 
 
 #include "BinaryFission.h"
-
-//#include "TimerManager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GenericPlatform/GenericPlatformMath.h"
 
-/*#define UPPER_BOUND Length
-#define LOWER_BOUND -Length
-
-#define UPPER_ACCEPTABLE_BOUND Width
-#define LOWER_ACCEPTABLE_BOUND -Width*/
-
+//macros to define the range of random rotation on Z axis to spawn a bacterium
 #define UPPER_BOUND_ROTATION 40.0f
 #define LOWER_BOUND_ROTATION -40.0f
 #define PI 3.141593
@@ -46,6 +39,7 @@ void UBinaryFission::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	// ...
 }
 
+//Calls a function to do the binary fission according to the angle in Z axis of bacterium
 void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* Owner, float Length, float Width) {
 
 	//get current location and rotation of this bacterium
@@ -63,7 +57,7 @@ void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* O
 		(CurrentRotation.Yaw >= 170.0f && CurrentRotation.Yaw <= 180.0f) ||
 		(CurrentRotation.Yaw <= -170.0f && CurrentRotation.Yaw >= -180.0f)) {
 
-		EasyFission(CurrentLocation, CurrentRotation, ActorToSpawn, Length, Width, World);
+		SimpleFission(CurrentLocation, CurrentRotation, ActorToSpawn, Length, Width, World);
 
 	}
 	else { //if rotation is not between the previous ranges, then the location for binary fission
@@ -73,7 +67,8 @@ void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* O
 
 }
 
-void UBinaryFission::EasyFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, float Length, float Width, UWorld* World) {
+//Spawns a bacterium on the same straight line of the mother cell, for angles in Z axis near to 0°, 90° and 180° 
+void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, float Length, float Width, UWorld* World) {
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("EasyFission")));
 
@@ -85,13 +80,13 @@ void UBinaryFission::EasyFission(FVector CurrentLocation, FRotator CurrentRotati
 		(CurrentRotation.Yaw >= 170.0f && CurrentRotation.Yaw <= 180.0f) ||
 		(CurrentRotation.Yaw <= -170.0f && CurrentRotation.Yaw >= -180.0f)) {
 
-		//X constant and Y constant
 		X = CurrentLocation.X;
-		Z = CurrentLocation.Z + 10;
+		Z = CurrentLocation.Z + Width;
 		Y = CurrentLocation.Y;
 
 		float randomNumber = FMath::RandRange(0.0f, 50.0f);
 		int option;
+		//position in Y is changed, while X remains constant
 		if (randomNumber >= 0 && randomNumber < 25) {
 			Y += Length;
 			option = 1;
@@ -113,6 +108,7 @@ void UBinaryFission::EasyFission(FVector CurrentLocation, FRotator CurrentRotati
 
 		AActor* NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
 
+		//if bacterium could not be spawned, then try again in the opposite direction
 		if (!IsValid(NewBacteria)) {
 			if (option == 1) {
 				Y -= Length * 2;
@@ -122,6 +118,8 @@ void UBinaryFission::EasyFission(FVector CurrentLocation, FRotator CurrentRotati
 			}
 			FVector Location2(X, Y, Z);
 			NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location2, Rotation, ActorSpawnParameters);
+
+			//if the spawn fails again, then try a binary fission using the area approach
 			if (!IsValid(NewBacteria)) {
 				FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 			}
@@ -132,10 +130,11 @@ void UBinaryFission::EasyFission(FVector CurrentLocation, FRotator CurrentRotati
 
 		X = CurrentLocation.X;
 		Y = CurrentLocation.Y;
-		Z = CurrentLocation.Z + 10;
+		Z = CurrentLocation.Z + Width;
 
 		int option;
 		float randomNumber = FMath::RandRange(0.0f, 50.0f);
+		//position in X is changed, while Y remains constant
 		if (randomNumber >= 0 && randomNumber < 25) {
 			X += Length;
 			option = 1;
@@ -157,6 +156,7 @@ void UBinaryFission::EasyFission(FVector CurrentLocation, FRotator CurrentRotati
 
 		AActor* NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
 
+		//if bacterium could not be spawned, then try again in the opposite direction
 		if (!IsValid(NewBacteria)) {
 			if (option == 1) {
 				X -= Length * 2;
@@ -166,6 +166,8 @@ void UBinaryFission::EasyFission(FVector CurrentLocation, FRotator CurrentRotati
 			}
 			FVector Location2(X, Y, Z);
 			NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location2, Rotation, ActorSpawnParameters);
+
+			//if the spawn fails again, then try a binary fission using the area approach
 			if (!IsValid(NewBacteria)) {
 				FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 			}
@@ -175,6 +177,8 @@ void UBinaryFission::EasyFission(FVector CurrentLocation, FRotator CurrentRotati
 
 }
 
+//Spawns a bacterium using the intersections between a line and a circumference as center for the new bacterium
+//for mother cells with rotation angles in Z axis not included in the function SimpleFission 
 void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, float Length, float Width, UWorld* World) {
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("ComplexFission")));
@@ -186,19 +190,18 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 
 	float X2, Y2;
 
+	//depending of the angle in Z axis, X and Y coordinates change
+	//X and Y change according to quadrant in XY-plane
+	//functions to compute cos and sin require angle expressed in radians
 	if (CurrentRotation.Yaw > 0.0f && CurrentRotation.Yaw < 90.0f) {
 		float Angle = CurrentRotation.Yaw * PI / 180;
 		X2 = X1 - FGenericPlatformMath::Cos(Angle);
 		Y2 = Y1 + FMath::Sin(Angle);
-		/*float* sin = new float();
-			float* cos = new float();
-		FMath::SinCos(sin, cos, Angle);*/
-		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Cos: %f, Sin: %f"), *cos, *sin));
 	}
 	else {
 		if (CurrentRotation.Yaw > 90.0f && CurrentRotation.Yaw < 180.0f) {
-			float AngleComplement = 180.0f - CurrentRotation.Yaw;
-			float Angle = AngleComplement * PI / 180;
+			float SupplementaryAngle = 180.0f - CurrentRotation.Yaw;
+			float Angle = SupplementaryAngle * PI / 180;
 			X2 = X1 + FGenericPlatformMath::Cos(Angle);
 			Y2 = Y1 + FMath::Sin(Angle);
 		}
@@ -209,20 +212,24 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 				Y2 = Y1 - FMath::Sin(Angle);
 			}
 			else { //CurrentRotation.Yaw < -90.0f && CurrentRotation.Yaw > -180.0f				
-				float AngleComplement = 180.0f - (-CurrentRotation.Yaw);
-				float Angle = AngleComplement * PI / 180;
+				float SupplementaryAngle = 180.0f - (-CurrentRotation.Yaw);
+				float Angle = SupplementaryAngle * PI / 180;
 				X2 = X1 + FGenericPlatformMath::Cos(Angle);
 				Y2 = Y1 - FMath::Sin(Angle);
 			}
 		}
 	}
 
+	//formulas to find the equation of the line that traverses the bacterium
 	float Slope = (Y2 - Y1) / (X2 - X1);
 	float Intercept = Y1 - Slope * X1;
 
 	int option;
-	Z = CurrentLocation.Z + 15.0f;
+	Z = CurrentLocation.Z + Width;
 	float randomNumber = FMath::RandRange(0.0f, 50.0f);
+
+	//find X and Y coordinates using intersections between the equation of the line and
+	//the circumference centered in (X1, Y1) and radius equal to the length of bacterium
 	if (randomNumber >= 0.0f && randomNumber < 25.0f) {
 		X = ComputeX1(Intercept, Slope, X1, Y1, Length);
 		Y = ComputeY1(Intercept, Slope, X1, Y1, Length);
@@ -246,6 +253,7 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 
 	AActor* NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
 
+	//if bacterium could not be spawned, then try again using the other (X, Y) solution (the other intersection)
 	if (!IsValid(NewBacteria)) {
 
 		if (option == 1) {
@@ -261,6 +269,7 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 
 		NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location2, Rotation, ActorSpawnParameters);
 
+		//if the spawn fails again, then try a binary fission using the area approach
 		if (!IsValid(NewBacteria)) {
 			FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 		}
@@ -269,54 +278,75 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 
 }
 
-float UBinaryFission::ComputeX1(float B, float Slope, float U, float V, float D) {
+//Computes the first X solution for intersection between the equation of the line that traverses mother cell
+//and the circumference centered in the mother cell centre with radius equal to the length of bacterium
+//B is intercept of the equation of the line, Slope is slope of the same equation
+//U and V are the (X, Y) coordinates of mother cell center
+//R is the radius of the circumference
+float UBinaryFission::ComputeX1(float B, float Slope, float U, float V, float R) {
 	float X;
 	X = (-Slope * FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U
-		+ 2 * B * V + FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2)
-		+ FGenericPlatformMath::Pow(D, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
+		+ 2 * B * V + FGenericPlatformMath::Pow(R, 2) * FGenericPlatformMath::Pow(Slope, 2)
+		+ FGenericPlatformMath::Pow(R, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
 		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2))
 		+ B + FGenericPlatformMath::Pow(Slope, 2) * V + Slope * U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
 	return X;
 }
 
-float UBinaryFission::ComputeY1(float B, float Slope, float U, float V, float D) {
+//Computes the first Y solution for intersection between the equation of the line that traverses mother cell
+//and the circumference centered in the mother cell centre with radius equal to the length of bacterium
+//B is intercept of the equation of the line, Slope is slope of the same equation
+//U and V are the (X, Y) coordinates of mother cell center
+//R is the radius of the circumference
+float UBinaryFission::ComputeY1(float B, float Slope, float U, float V, float R) {
 	float Y;
 	Y = (-FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U +
-		2 * B * V + FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2) +
-		FGenericPlatformMath::Pow(D, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
+		2 * B * V + FGenericPlatformMath::Pow(R, 2) * FGenericPlatformMath::Pow(Slope, 2) +
+		FGenericPlatformMath::Pow(R, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
 		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2))
 		- B * Slope + Slope * V + U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
 	return Y;
 }
 
-float UBinaryFission::ComputeX2(float B, float Slope, float U, float V, float D) {
+//Computes the second X solution for intersection between the equation of the line that traverses mother cell
+//and the circumference centered in the mother cell centre with radius equal to the length of bacterium
+//B is intercept of the equation of the line, Slope is slope of the same equation
+//U and V are the (X, Y) coordinates of mother cell center
+//R is the radius of the circumference
+float UBinaryFission::ComputeX2(float B, float Slope, float U, float V, float R) {
 	float X;
 	X = (Slope * FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U
-		+ 2 * B * V + FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2)
-		+ FGenericPlatformMath::Pow(D, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
+		+ 2 * B * V + FGenericPlatformMath::Pow(R, 2) * FGenericPlatformMath::Pow(Slope, 2)
+		+ FGenericPlatformMath::Pow(R, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
 		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2)) + B + FGenericPlatformMath::Pow(Slope, 2) * V
 		+ Slope * U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
 	return X;
 }
 
-float UBinaryFission::ComputeY2(float B, float Slope, float U, float V, float D) {
+//Computes the second Y solution for intersection between the equation of the line that traverses mother cell
+//and the circumference centered in the mother cell centre with radius equal to the length of bacterium
+//B is intercept of the equation of the line, Slope is slope of the same equation
+//U and V are the (X, Y) coordinates of mother cell center
+//R is the radius of the circumference
+float UBinaryFission::ComputeY2(float B, float Slope, float U, float V, float R) {
 	float Y;
 	Y = (FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U + 2 * B * V
-		+ FGenericPlatformMath::Pow(D, 2) * FGenericPlatformMath::Pow(Slope, 2) + FGenericPlatformMath::Pow(D, 2)
+		+ FGenericPlatformMath::Pow(R, 2) * FGenericPlatformMath::Pow(Slope, 2) + FGenericPlatformMath::Pow(R, 2)
 		- FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2) + 2 * Slope * U * V
 		- FGenericPlatformMath::Pow(V, 2)) - B * Slope + Slope * V + U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
 	return Y;
 }
 
+//Spawns a bacterium within a sorrounding area to the mother cell
 void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, UWorld* World, float Length, float Width) {
-
-	//FVector CurrentLocation = GetOwner()->GetActorLocation();
 
 	float UPPER_BOUND = Length;
 	float LOWER_BOUND = -Length;
 
 	float UPPER_ACCEPTABLE_BOUND = Width;
 	float LOWER_ACCEPTABLE_BOUND = -Width;
+
+	//Ranges are established for changes in X and Y coordinates
 
 	float TempX = FMath::RandRange(LOWER_BOUND, UPPER_BOUND);
 	while (TempX == 0) {
@@ -329,7 +359,6 @@ void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotati
 		else {
 			TempX = FMath::RandRange(UPPER_ACCEPTABLE_BOUND+1, UPPER_BOUND);
 		}
-		//TempX = FMath::RandRange(LOWER_BOUND, UPPER_BOUND);
 	}
 	float XPoint = CurrentLocation.X + TempX;
 
@@ -344,7 +373,6 @@ void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotati
 		else {
 			TempY = FMath::RandRange(UPPER_ACCEPTABLE_BOUND + 1, UPPER_BOUND);
 		}
-		//TempY = FMath::RandRange(LOWER_BOUND, UPPER_BOUND);
 	}
 	float YPoint = CurrentLocation.Y + TempY;
 
@@ -352,8 +380,6 @@ void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotati
 	float ZPoint = CurrentLocation.Z + TempZ;
 
 	FVector Location(XPoint, YPoint, ZPoint);
-
-	//FRotator CurrentRotation = GetOwner()->GetActorRotation();
 
 	float RotationX = CurrentRotation.Roll;
 	float RotationY = CurrentRotation.Pitch;

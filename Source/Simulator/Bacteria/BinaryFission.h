@@ -22,14 +22,14 @@ public:
 
 private:
 
-	static void EasyFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, float Length, float Width, UWorld* World);
+	static void SimpleFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, float Length, float Width, UWorld* World);
 	static void ComplexFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, float Length, float Width, UWorld* World);
 	static void FissionArea(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, UWorld* World, float Length, float Width);
 
-	static float ComputeX1(float B, float Slope, float U, float V, float D);
-	static float ComputeY1(float B, float Slope, float U, float V, float D);
-	static float ComputeX2(float B, float Slope, float U, float V, float D);
-	static float ComputeY2(float B, float Slope, float U, float V, float D);
+	static float ComputeX1(float B, float Slope, float U, float V, float R);
+	static float ComputeY1(float B, float Slope, float U, float V, float R);
+	static float ComputeX2(float B, float Slope, float U, float V, float R);
+	static float ComputeY2(float B, float Slope, float U, float V, float R);
 
 protected:
 	// Called when the game starts
