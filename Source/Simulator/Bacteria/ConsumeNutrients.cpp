@@ -32,14 +32,31 @@ void UConsumeNutrients::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	// ...
 }
 
-float UConsumeNutrients::GetNutrients(float AvailableNutrients, float EnergyLevel) {
+float UConsumeNutrients::GetNutrients(float AvailableNutrients, float EnergyLevel, float NutrientAbsorptionRate,
+	float MaximumEnergyLevel) {
 
-	if (AvailableNutrients > 0.5) {
-		return EnergyLevel + 0.5;
+	float NewEnergyLevel;
+
+	if (AvailableNutrients > 0.0f) {
+		if (AvailableNutrients >= NutrientAbsorptionRate) {
+			NewEnergyLevel = EnergyLevel + NutrientAbsorptionRate;
+		}
+		else {
+			NewEnergyLevel = EnergyLevel + AvailableNutrients;
+		}
 	}
 	else {
-		return EnergyLevel;
+		NewEnergyLevel = EnergyLevel;
 	}
-
+	return NewEnergyLevel;
 }
 
+float UConsumeNutrients::UpdateNutrientAbsorptionRate(float EnergyLevel) {
+
+	float NewNutrientAbsorptionRate;
+
+	NewNutrientAbsorptionRate = EnergyLevel*0.25;
+
+	return NewNutrientAbsorptionRate;
+
+}
