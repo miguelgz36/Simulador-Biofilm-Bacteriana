@@ -49,6 +49,9 @@ void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* O
 	//get reference of the world
 	UWorld* World = Owner->GetWorld();
 
+	//FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
+
+	
 	//if rotation is between one this ranges, then the location for binary fission is found in a simple way
 	if ((CurrentRotation.Yaw >= 0.0f && CurrentRotation.Yaw <= 10.0f) ||
 		(CurrentRotation.Yaw <= 0.0f && CurrentRotation.Yaw >= -10.0f) ||
@@ -64,7 +67,7 @@ void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* O
 		//is found using some geometrical formulas
 		ComplexFission(CurrentLocation, CurrentRotation, ActorToSpawn, Length, Width, World);
 	}
-
+	
 }
 
 //Spawns a bacterium on the same straight line of the mother cell, for angles in Z axis near to 0°, 90° and 180° 
@@ -82,7 +85,8 @@ void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRota
 		(CurrentRotation.Yaw <= -170.0f && CurrentRotation.Yaw >= -180.0f)) {
 
 		X = CurrentLocation.X;
-		Z = CurrentLocation.Z + Width;
+		//Z = CurrentLocation.Z + Width;
+		Z = Width;
 		Y = CurrentLocation.Y;
 
 		float randomNumber = FMath::RandRange(0.0f, 50.0f);
@@ -119,11 +123,12 @@ void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRota
 			}
 			FVector Location2(X, Y, Z);
 			NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location2, Rotation, ActorSpawnParameters);
-
+			
 			//if the spawn fails again, then try a binary fission using the area approach
 			if (!IsValid(NewBacteria)) {
 				FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 			}
+			//FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 		}
 
 	}
@@ -131,7 +136,8 @@ void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRota
 
 		X = CurrentLocation.X;
 		Y = CurrentLocation.Y;
-		Z = CurrentLocation.Z + Width;
+		//Z = CurrentLocation.Z + Width;
+		Z = Width;
 
 		int option;
 		float randomNumber = FMath::RandRange(0.0f, 50.0f);
@@ -167,11 +173,12 @@ void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRota
 			}
 			FVector Location2(X, Y, Z);
 			NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location2, Rotation, ActorSpawnParameters);
-
+			
 			//if the spawn fails again, then try a binary fission using the area approach
 			if (!IsValid(NewBacteria)) {
 				FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 			}
+			//FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 		}
 
 	}
@@ -227,7 +234,8 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 	float Intercept = Y1 - Slope * X1;
 
 	int option;
-	Z = CurrentLocation.Z + Width;
+	//Z = CurrentLocation.Z + Width;
+	Z = Width;
 	float randomNumber = FMath::RandRange(0.0f, 50.0f);
 
 	//find X and Y coordinates using intersections between the equation of the line and
@@ -257,7 +265,7 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 
 	//if bacterium could not be spawned, then try again using the other (X, Y) solution (the other intersection)
 	if (!IsValid(NewBacteria)) {
-
+		
 		if (option == 1) {
 			X = ComputeX2(Intercept, Slope, X1, Y1, Length);
 			Y = ComputeY2(Intercept, Slope, X1, Y1, Length);
@@ -270,12 +278,13 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 		FVector Location2(X, Y, Z);
 
 		NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location2, Rotation, ActorSpawnParameters);
-
+		
 		//if the spawn fails again, then try a binary fission using the area approach
 		if (!IsValid(NewBacteria)) {
 			FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 		}
-
+		
+		//FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 	}
 
 }
@@ -379,8 +388,10 @@ void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotati
 	}
 	float YPoint = CurrentLocation.Y + TempY;
 
-	float TempZ = FMath::RandRange(Width, Width+Width*(1/4));
-	float ZPoint = CurrentLocation.Z + TempZ;
+	//float TempZ = FMath::RandRange(0.0f, Width+Width*(1/8));
+	//float ZPoint = CurrentLocation.Z + TempZ;
+	float ZPoint = Width;
+	UE_LOG(LogTemp, Warning, TEXT("ZPoint: %f"), ZPoint);
 
 	FVector Location(XPoint, YPoint, ZPoint);
 
