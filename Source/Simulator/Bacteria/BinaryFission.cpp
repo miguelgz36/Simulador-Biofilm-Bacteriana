@@ -86,7 +86,7 @@ void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRota
 
 		X = CurrentLocation.X;
 		//Z = CurrentLocation.Z + Width;
-		Z = Width;
+		Z = CurrentLocation.Z + Width/2;
 		Y = CurrentLocation.Y;
 
 		float randomNumber = FMath::RandRange(0.0f, 50.0f);
@@ -137,7 +137,7 @@ void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRota
 		X = CurrentLocation.X;
 		Y = CurrentLocation.Y;
 		//Z = CurrentLocation.Z + Width;
-		Z = Width;
+		Z = CurrentLocation.Z + Width / 2;
 
 		int option;
 		float randomNumber = FMath::RandRange(0.0f, 50.0f);
@@ -235,7 +235,7 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 
 	int option;
 	//Z = CurrentLocation.Z + Width;
-	Z = Width;
+	Z = CurrentLocation.Z + Width / 2;
 	float randomNumber = FMath::RandRange(0.0f, 50.0f);
 
 	//find X and Y coordinates using intersections between the equation of the line and
@@ -390,7 +390,7 @@ void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotati
 
 	//float TempZ = FMath::RandRange(0.0f, Width+Width*(1/8));
 	//float ZPoint = CurrentLocation.Z + TempZ;
-	float ZPoint = Width;
+	float ZPoint = CurrentLocation.Z + Width / 2;
 	UE_LOG(LogTemp, Warning, TEXT("ZPoint: %f"), ZPoint);
 
 	FVector Location(XPoint, YPoint, ZPoint);
