@@ -34,6 +34,8 @@ private:
 	static float ComputeX2(float B, float Slope, float U, float V, float R);
 	static float ComputeY2(float B, float Slope, float U, float V, float R);
 
+	static void DoRaycast(UWorld* World, FVector Location, FRotator CurrentRotation, float Length);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

@@ -4,6 +4,7 @@
 #include "BinaryFission.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GenericPlatform/GenericPlatformMath.h"
+#include "DrawDebugHelpers.h"
 
 //macros to define the range of random rotation on Z axis to spawn a bacterium
 #define UPPER_BOUND_ROTATION 40.0f
@@ -49,9 +50,8 @@ void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* O
 	//get reference of the world
 	UWorld* World = Owner->GetWorld();
 
-	//FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
-
-	
+	DoRaycast(World, CurrentLocation, CurrentRotation, Length);
+	/*
 	//if rotation is between one this ranges, then the location for binary fission is found in a simple way
 	if ((CurrentRotation.Yaw >= 0.0f && CurrentRotation.Yaw <= 10.0f) ||
 		(CurrentRotation.Yaw <= 0.0f && CurrentRotation.Yaw >= -10.0f) ||
@@ -67,7 +67,7 @@ void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* O
 		//is found using some geometrical formulas
 		ComplexFission(CurrentLocation, CurrentRotation, ActorToSpawn, Length, Width, World);
 	}
-	
+	*/
 }
 
 //Spawns a bacterium on the same straight line of the mother cell, for angles in Z axis near to 0°, 90° and 180° 
@@ -128,7 +128,6 @@ void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRota
 			if (!IsValid(NewBacteria)) {
 				FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 			}
-			//FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 		}
 
 	}
@@ -178,7 +177,6 @@ void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRota
 			if (!IsValid(NewBacteria)) {
 				FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 			}
-			//FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 		}
 
 	}
@@ -204,27 +202,27 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 	//functions to compute cos and sin require angle expressed in radians
 	if (CurrentRotation.Yaw > 0.0f && CurrentRotation.Yaw < 90.0f) {
 		float Angle = CurrentRotation.Yaw * PI / 180;
-		X2 = X1 - FGenericPlatformMath::Cos(Angle);
-		Y2 = Y1 + FMath::Sin(Angle);
+		Y2 = Y1 - FGenericPlatformMath::Cos(Angle);
+		X2 = X1 + FMath::Sin(Angle);
 	}
 	else {
 		if (CurrentRotation.Yaw > 90.0f && CurrentRotation.Yaw < 180.0f) {
 			float SupplementaryAngle = 180.0f - CurrentRotation.Yaw;
 			float Angle = SupplementaryAngle * PI / 180;
-			X2 = X1 + FGenericPlatformMath::Cos(Angle);
-			Y2 = Y1 + FMath::Sin(Angle);
+			Y2 = Y1 + FGenericPlatformMath::Cos(Angle);
+			X2 = X1 + FMath::Sin(Angle);
 		}
 		else {
 			if (CurrentRotation.Yaw < 0.0f && CurrentRotation.Yaw > -90.0f) {
 				float Angle = -CurrentRotation.Yaw * PI / 180;
-				X2 = X1 - FGenericPlatformMath::Cos(Angle);
-				Y2 = Y1 - FMath::Sin(Angle);
+				Y2 = Y1 - FGenericPlatformMath::Cos(Angle);
+				X2 = X1 - FMath::Sin(Angle);
 			}
 			else { //CurrentRotation.Yaw < -90.0f && CurrentRotation.Yaw > -180.0f				
 				float SupplementaryAngle = 180.0f - (-CurrentRotation.Yaw);
 				float Angle = SupplementaryAngle * PI / 180;
-				X2 = X1 + FGenericPlatformMath::Cos(Angle);
-				Y2 = Y1 - FMath::Sin(Angle);
+				Y2 = Y1 + FGenericPlatformMath::Cos(Angle);
+				X2 = X1 - FMath::Sin(Angle);
 			}
 		}
 	}
@@ -234,20 +232,19 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 	float Intercept = Y1 - Slope * X1;
 
 	int option;
-	//Z = CurrentLocation.Z + Width;
 	Z = CurrentLocation.Z + Width / 2;
 	float randomNumber = FMath::RandRange(0.0f, 50.0f);
 
 	//find X and Y coordinates using intersections between the equation of the line and
 	//the circumference centered in (X1, Y1) and radius equal to the length of bacterium
 	if (randomNumber >= 0.0f && randomNumber < 25.0f) {
-		X = ComputeX1(Intercept, Slope, X1, Y1, Length);
 		Y = ComputeY1(Intercept, Slope, X1, Y1, Length);
+		X = ComputeX1(Intercept, Slope, X1, Y1, Length);
 		option = 1;
 	}
 	else {
-		X = ComputeX2(Intercept, Slope, X1, Y1, Length);
 		Y = ComputeY2(Intercept, Slope, X1, Y1, Length);
+		X = ComputeX2(Intercept, Slope, X1, Y1, Length);
 		option = 2;
 	}
 
@@ -267,12 +264,12 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 	if (!IsValid(NewBacteria)) {
 		
 		if (option == 1) {
-			X = ComputeX2(Intercept, Slope, X1, Y1, Length);
 			Y = ComputeY2(Intercept, Slope, X1, Y1, Length);
+			X = ComputeX2(Intercept, Slope, X1, Y1, Length);
 		}
 		else {
-			X = ComputeX1(Intercept, Slope, X1, Y1, Length);
 			Y = ComputeY1(Intercept, Slope, X1, Y1, Length);
+			X = ComputeX1(Intercept, Slope, X1, Y1, Length);
 		}
 
 		FVector Location2(X, Y, Z);
@@ -283,8 +280,13 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 		if (!IsValid(NewBacteria)) {
 			FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 		}
-		
-		//FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
+		else {
+			//DoRaycast(World, Location2, Rotation, Length);
+		}
+
+	}
+	else {
+		//DoRaycast(World, Location, Rotation, Length);
 	}
 
 }
@@ -296,11 +298,11 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 //R is the radius of the circumference
 float UBinaryFission::ComputeX1(float B, float Slope, float U, float V, float R) {
 	float X;
-	X = (-Slope * FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U
-		+ 2 * B * V + FGenericPlatformMath::Pow(R, 2) * FGenericPlatformMath::Pow(Slope, 2)
-		+ FGenericPlatformMath::Pow(R, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
+	X = (-FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U +
+		2 * B * V + FGenericPlatformMath::Pow(R, 2) * FGenericPlatformMath::Pow(Slope, 2) +
+		FGenericPlatformMath::Pow(R, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
 		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2))
-		+ B + FGenericPlatformMath::Pow(Slope, 2) * V + Slope * U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
+		- B * Slope + Slope * V + U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
 	return X;
 }
 
@@ -311,11 +313,11 @@ float UBinaryFission::ComputeX1(float B, float Slope, float U, float V, float R)
 //R is the radius of the circumference
 float UBinaryFission::ComputeY1(float B, float Slope, float U, float V, float R) {
 	float Y;
-	Y = (-FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U +
-		2 * B * V + FGenericPlatformMath::Pow(R, 2) * FGenericPlatformMath::Pow(Slope, 2) +
-		FGenericPlatformMath::Pow(R, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
+	Y = (-Slope * FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U
+		+ 2 * B * V + FGenericPlatformMath::Pow(R, 2) * FGenericPlatformMath::Pow(Slope, 2)
+		+ FGenericPlatformMath::Pow(R, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
 		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2))
-		- B * Slope + Slope * V + U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
+		+ B + FGenericPlatformMath::Pow(Slope, 2) * V + Slope * U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
 	return Y;
 }
 
@@ -326,11 +328,10 @@ float UBinaryFission::ComputeY1(float B, float Slope, float U, float V, float R)
 //R is the radius of the circumference
 float UBinaryFission::ComputeX2(float B, float Slope, float U, float V, float R) {
 	float X;
-	X = (Slope * FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U
-		+ 2 * B * V + FGenericPlatformMath::Pow(R, 2) * FGenericPlatformMath::Pow(Slope, 2)
-		+ FGenericPlatformMath::Pow(R, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
-		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2)) + B + FGenericPlatformMath::Pow(Slope, 2) * V
-		+ Slope * U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
+	X = (FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U + 2 * B * V
+		+ FGenericPlatformMath::Pow(R, 2) * FGenericPlatformMath::Pow(Slope, 2) + FGenericPlatformMath::Pow(R, 2)
+		- FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2) + 2 * Slope * U * V
+		- FGenericPlatformMath::Pow(V, 2)) - B * Slope + Slope * V + U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
 	return X;
 }
 
@@ -341,10 +342,11 @@ float UBinaryFission::ComputeX2(float B, float Slope, float U, float V, float R)
 //R is the radius of the circumference
 float UBinaryFission::ComputeY2(float B, float Slope, float U, float V, float R) {
 	float Y;
-	Y = (FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U + 2 * B * V
-		+ FGenericPlatformMath::Pow(R, 2) * FGenericPlatformMath::Pow(Slope, 2) + FGenericPlatformMath::Pow(R, 2)
-		- FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2) + 2 * Slope * U * V
-		- FGenericPlatformMath::Pow(V, 2)) - B * Slope + Slope * V + U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
+	Y = (Slope * FGenericPlatformMath::Sqrt(-FGenericPlatformMath::Pow(B, 2) - 2 * B * Slope * U
+		+ 2 * B * V + FGenericPlatformMath::Pow(R, 2) * FGenericPlatformMath::Pow(Slope, 2)
+		+ FGenericPlatformMath::Pow(R, 2) - FGenericPlatformMath::Pow(Slope, 2) * FGenericPlatformMath::Pow(U, 2)
+		+ 2 * Slope * U * V - FGenericPlatformMath::Pow(V, 2)) + B + FGenericPlatformMath::Pow(Slope, 2) * V
+		+ Slope * U) / (FGenericPlatformMath::Pow(Slope, 2) + 1);
 	return Y;
 }
 
@@ -391,7 +393,7 @@ void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotati
 	//float TempZ = FMath::RandRange(0.0f, Width+Width*(1/8));
 	//float ZPoint = CurrentLocation.Z + TempZ;
 	float ZPoint = CurrentLocation.Z + Width / 2;
-	UE_LOG(LogTemp, Warning, TEXT("ZPoint: %f"), ZPoint);
+	//UE_LOG(LogTemp, Warning, TEXT("ZPoint: %f"), ZPoint);
 
 	FVector Location(XPoint, YPoint, ZPoint);
 
@@ -408,4 +410,82 @@ void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotati
 
 	AActor* NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
 
+}
+
+void UBinaryFission::DoRaycast(UWorld* World, FVector Location, FRotator CurrentRotation, float Length) {
+	
+	float X1 = Location.X;
+	float X2, X3;
+	float Y1 = Location.Y;
+	float Y2, Y3;
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Rotation Z: %f"), CurrentRotation.Yaw));
+
+	if (CurrentRotation.Yaw > 0.0f && CurrentRotation.Yaw < 90.0f) {
+		float Angle = CurrentRotation.Yaw * PI / 180;
+		float CosAngle = FGenericPlatformMath::Cos(Angle) * (Length / 2);
+		float SinAngle = FMath::Sin(Angle) * (Length / 2);
+		Y2 = Y1 - CosAngle;
+		X2 = X1 + SinAngle;
+		Y3 = Y1 + CosAngle;
+		X3 = X1 - SinAngle;
+	}
+	else {
+		if (CurrentRotation.Yaw > 90.0f && CurrentRotation.Yaw < 180.0f) {
+			float SupplementaryAngle = 180.0f - CurrentRotation.Yaw;
+			float Angle = SupplementaryAngle * PI / 180;
+			float CosAngle = FGenericPlatformMath::Cos(Angle) * (Length / 2);
+			float SinAngle = FMath::Sin(Angle) * (Length / 2);
+			Y2 = Y1 + CosAngle;
+			X2 = X1 + SinAngle;
+			Y3 = Y1 - CosAngle;
+			X3 = X1 - SinAngle;
+		}
+		else {
+			if (CurrentRotation.Yaw < 0.0f && CurrentRotation.Yaw > -90.0f) {
+				float Angle = -CurrentRotation.Yaw * PI / 180;
+				float CosAngle = FGenericPlatformMath::Cos(Angle) * (Length / 2);
+				float SinAngle = FMath::Sin(Angle) * (Length / 2);
+				Y2 = Y1 - CosAngle;
+				X2 = X1 - SinAngle;
+				Y3 = Y1 + CosAngle;
+				X3 = X1 + SinAngle;
+			}
+			else { //CurrentRotation.Yaw < -90.0f && CurrentRotation.Yaw > -180.0f				
+				float SupplementaryAngle = 180.0f - (-CurrentRotation.Yaw);
+				float Angle = SupplementaryAngle * PI / 180;
+				float CosAngle = FGenericPlatformMath::Cos(Angle) * (Length / 2);
+				float SinAngle = FMath::Sin(Angle) * (Length / 2);
+				Y2 = Y1 + CosAngle;
+				X2 = X1 - SinAngle;
+				Y3 = Y1 - CosAngle;
+				X3 = X1 + SinAngle;
+			}
+		}
+	}
+
+	FVector NewLocation(Location.X, Location.Y, 50.0f);
+	FVector End(Location.X, Location.Y, 0.0f);
+	FHitResult Hit;
+	bool bSuccess = World->LineTraceSingleByChannel(Hit, NewLocation, End, ECollisionChannel::ECC_GameTraceChannel1);
+	//DrawDebugLine(World, NewLocation, End, FColor(255, 255, 255), true, // sets weather or not the line is in the world permanently
+	DrawDebugLine(World, NewLocation, End, FColor(255, 255, 255), true, -1.f, 0, 0.3);
+	
+	FVector NewLocation2(X2, Y2, 50.0f);
+	FVector End2(X2, Y2, 0.0f);
+	FHitResult Hit2;
+	bool bSuccess2 = World->LineTraceSingleByChannel(Hit2, NewLocation2, End2, ECollisionChannel::ECC_GameTraceChannel1);
+	DrawDebugLine(World, NewLocation2, End2, FColor(0, 255, 255), true, -1.f, 0, 0.3);
+	
+	FVector NewLocation3(X3, Y3, 50.0f);
+	FVector End3(X3, Y3, 0.0f);
+	FHitResult Hit3;
+	bool bSuccess3 = World->LineTraceSingleByChannel(Hit3, NewLocation3, End3, ECollisionChannel::ECC_GameTraceChannel1);
+	DrawDebugLine(World, NewLocation3, End3, FColor(255, 0, 0), true, -1.f, 0, 0.3);
+	
+
+	if (bSuccess) {
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("We hit something")));
+		//Hit.Location;
+	}
 }
