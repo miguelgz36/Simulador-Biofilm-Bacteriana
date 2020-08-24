@@ -50,8 +50,8 @@ void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* O
 	//get reference of the world
 	UWorld* World = Owner->GetWorld();
 
-	DoRaycast(World, CurrentLocation, CurrentRotation, Length);
-	/*
+	//DoRaycast(World, CurrentLocation.X, CurrentLocation.Y, Length, Width);
+	
 	//if rotation is between one this ranges, then the location for binary fission is found in a simple way
 	if ((CurrentRotation.Yaw >= 0.0f && CurrentRotation.Yaw <= 10.0f) ||
 		(CurrentRotation.Yaw <= 0.0f && CurrentRotation.Yaw >= -10.0f) ||
@@ -67,7 +67,7 @@ void UBinaryFission::DoBinaryFission(TSubclassOf<AActor> ActorToSpawn, AActor* O
 		//is found using some geometrical formulas
 		ComplexFission(CurrentLocation, CurrentRotation, ActorToSpawn, Length, Width, World);
 	}
-	*/
+	
 }
 
 //Spawns a bacterium on the same straight line of the mother cell, for angles in Z axis near to 0°, 90° and 180° 
@@ -76,109 +76,132 @@ void UBinaryFission::SimpleFission(FVector CurrentLocation, FRotator CurrentRota
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("EasyFission")));
 
-	float X, Y, Z;
-	float Distance = Length;
-
 	if ((CurrentRotation.Yaw >= 0.0f && CurrentRotation.Yaw <= 10.0f) ||
 		(CurrentRotation.Yaw <= 0.0f && CurrentRotation.Yaw >= -10.0f) ||
 		(CurrentRotation.Yaw >= 170.0f && CurrentRotation.Yaw <= 180.0f) ||
 		(CurrentRotation.Yaw <= -170.0f && CurrentRotation.Yaw >= -180.0f)) {
 
-		X = CurrentLocation.X;
-		//Z = CurrentLocation.Z + Width;
-		Z = CurrentLocation.Z + Width/2;
-		Y = CurrentLocation.Y;
-
-		float randomNumber = FMath::RandRange(0.0f, 50.0f);
-		int option;
-		//position in Y is changed, while X remains constant
-		if (randomNumber >= 0 && randomNumber < 25) {
-			Y += Length;
-			option = 1;
-		}
-		else {
-			Y -= Length;
-			option = 2;
-		}
-
-		FVector Location(X, Y, Z);
-		FActorSpawnParameters ActorSpawnParameters;
-
-		float RotationX = CurrentRotation.Roll;
-		float RotationY = CurrentRotation.Pitch;
-		float RotationZ = CurrentRotation.Yaw + FMath::RandRange(LOWER_BOUND_ROTATION, UPPER_BOUND_ROTATION);
-
-		//float InPitch, float InYaw, float InRoll
-		FRotator Rotation(RotationY, RotationZ, RotationX);
-
-		AActor* NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
-
-		//if bacterium could not be spawned, then try again in the opposite direction
-		if (!IsValid(NewBacteria)) {
-			if (option == 1) {
-				Y -= Length * 2;
-			}
-			else {
-				Y += Length * 2;
-			}
-			FVector Location2(X, Y, Z);
-			NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location2, Rotation, ActorSpawnParameters);
-			
-			//if the spawn fails again, then try a binary fission using the area approach
-			if (!IsValid(NewBacteria)) {
-				FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
-			}
-		}
+		SimpleFissionOnYAxis(CurrentLocation, CurrentRotation, ActorToSpawn, Length, Width, World);
 
 	}
 	else { //CurrentRotation.Yaw != 90 || CurrentRotation.Yaw != 270
 
-		X = CurrentLocation.X;
-		Y = CurrentLocation.Y;
-		//Z = CurrentLocation.Z + Width;
-		Z = CurrentLocation.Z + Width / 2;
+		SimpleFissionOnXAxis(CurrentLocation, CurrentRotation, ActorToSpawn, Length, Width, World);
 
-		int option;
-		float randomNumber = FMath::RandRange(0.0f, 50.0f);
-		//position in X is changed, while Y remains constant
-		if (randomNumber >= 0 && randomNumber < 25) {
-			X += Length;
-			option = 1;
+	}
+
+}
+
+void UBinaryFission::SimpleFissionOnYAxis(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn,
+	float Length, float Width, UWorld* World) {
+
+	float X, Y, Z;
+	float Distance = Length;
+
+	X = CurrentLocation.X;
+	Z = CurrentLocation.Z + Width / 2;
+	Y = CurrentLocation.Y;
+
+	float randomNumber = FMath::RandRange(0.0f, 50.0f);
+	int option;
+	//position in Y is changed, while X remains constant
+	if (randomNumber >= 0 && randomNumber < 25) {
+		Y += Length;
+		option = 1;
+	}
+	else {
+		Y -= Length;
+		option = 2;
+	}
+
+	FVector Location(X, Y, Z);
+	FActorSpawnParameters ActorSpawnParameters;
+
+	float RotationX = CurrentRotation.Roll;
+	float RotationY = CurrentRotation.Pitch;
+	float RotationZ = CurrentRotation.Yaw + FMath::RandRange(LOWER_BOUND_ROTATION, UPPER_BOUND_ROTATION);
+
+	//float InPitch, float InYaw, float InRoll
+	FRotator Rotation(RotationY, RotationZ, RotationX);
+
+	//AActor* NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
+	//bool SpawnStatus = DoSpawn(World, ActorToSpawn, Location, Rotation);
+	bool SpawnStatus = DoRaycast(World, ActorToSpawn, Location, Rotation, Length, Width);
+
+	//if bacterium could not be spawned, then try again in the opposite direction
+	if (!SpawnStatus) {
+		if (option == 1) {
+			Y -= Length * 2;
 		}
 		else {
-			X -= Length;
-			option = 2;
+			Y += Length * 2;
 		}
+		FVector Location2(X, Y, Z);
+		//NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location2, Rotation, ActorSpawnParameters);
+		//SpawnStatus = DoSpawn(World, ActorToSpawn, Location2, Rotation);
+		SpawnStatus = DoRaycast(World, ActorToSpawn, Location2, Rotation, Length, Width);
 
-		FVector Location(X, Y, Z);
-		FActorSpawnParameters ActorSpawnParameters;
-
-		float RotationX = CurrentRotation.Roll;
-		float RotationY = CurrentRotation.Pitch;
-		float RotationZ = CurrentRotation.Yaw + FMath::RandRange(LOWER_BOUND_ROTATION, UPPER_BOUND_ROTATION);
-
-		//float InPitch, float InYaw, float InRoll
-		FRotator Rotation(RotationY, RotationZ, RotationX);
-
-		AActor* NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
-
-		//if bacterium could not be spawned, then try again in the opposite direction
-		if (!IsValid(NewBacteria)) {
-			if (option == 1) {
-				X -= Length * 2;
-			}
-			else {
-				X += Length * 2;
-			}
-			FVector Location2(X, Y, Z);
-			NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location2, Rotation, ActorSpawnParameters);
-			
-			//if the spawn fails again, then try a binary fission using the area approach
-			if (!IsValid(NewBacteria)) {
-				FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
-			}
+		//if the spawn fails again, then try a binary fission using the area approach
+		if (!SpawnStatus) {
+			FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 		}
+	}
 
+}
+
+void UBinaryFission::SimpleFissionOnXAxis(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn,
+	float Length, float Width, UWorld* World) {
+
+	float X, Y, Z;
+	float Distance = Length;
+
+	X = CurrentLocation.X;
+	Y = CurrentLocation.Y;
+	//Z = CurrentLocation.Z + Width;
+	Z = CurrentLocation.Z + Width / 2;
+
+	int option;
+	float randomNumber = FMath::RandRange(0.0f, 50.0f);
+	//position in X is changed, while Y remains constant
+	if (randomNumber >= 0 && randomNumber < 25) {
+		X += Length;
+		option = 1;
+	}
+	else {
+		X -= Length;
+		option = 2;
+	}
+
+	FVector Location(X, Y, Z);
+
+	float RotationX = CurrentRotation.Roll;
+	float RotationY = CurrentRotation.Pitch;
+	float RotationZ = CurrentRotation.Yaw + FMath::RandRange(LOWER_BOUND_ROTATION, UPPER_BOUND_ROTATION);
+
+	//float InPitch, float InYaw, float InRoll
+	FRotator Rotation(RotationY, RotationZ, RotationX);
+
+	//AActor* NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
+	//bool SpawnStatus = DoSpawn(World, ActorToSpawn, Location, Rotation);
+	bool SpawnStatus = DoRaycast(World, ActorToSpawn, Location, Rotation, Length, Width);
+
+	//if bacterium could not be spawned, then try again in the opposite direction
+	if (!SpawnStatus) {
+		if (option == 1) {
+			X -= Length * 2;
+		}
+		else {
+			X += Length * 2;
+		}
+		FVector Location2(X, Y, Z);
+		//NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location2, Rotation, ActorSpawnParameters);
+		//SpawnStatus = DoSpawn(World, ActorToSpawn, Location2, Rotation);
+		SpawnStatus = DoRaycast(World, ActorToSpawn, Location2, Rotation, Length, Width);
+
+		//if the spawn fails again, then try a binary fission using the area approach
+		if (!SpawnStatus) {
+			FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
+		}
 	}
 
 }
@@ -248,8 +271,7 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 		option = 2;
 	}
 
-	FVector Location(X, Y, Z);
-	FActorSpawnParameters ActorSpawnParameters;
+	FVector Location(X, Y, Z);	
 
 	float RotationX = CurrentRotation.Roll;
 	float RotationY = CurrentRotation.Pitch;
@@ -258,10 +280,21 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 	//float InPitch, float InYaw, float InRoll
 	FRotator Rotation(RotationY, RotationZ, RotationX);
 
-	AActor* NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
+	//float AngleX = DoRaycast(World, X, Y, Length, Width);
+	//UE_LOG(LogTemp, Warning, TEXT("AngleX: %f"), AngleX);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("AngleX: %f"), AngleX));
+
+	bool SpawnStatus = DoRaycast(World, ActorToSpawn, Location, Rotation, Length, Width);
+
+	/*
+	AActor* NewBacteria = nullptr;
+	if (AngleX != -1000.0f) {
+		//NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
+		SpawnStatus = DoSpawn(World, ActorToSpawn, Location, Rotation);
+	}*/
 
 	//if bacterium could not be spawned, then try again using the other (X, Y) solution (the other intersection)
-	if (!IsValid(NewBacteria)) {
+	if (!SpawnStatus) {
 		
 		if (option == 1) {
 			Y = ComputeY2(Intercept, Slope, X1, Y1, Length);
@@ -274,19 +307,19 @@ void UBinaryFission::ComplexFission(FVector CurrentLocation, FRotator CurrentRot
 
 		FVector Location2(X, Y, Z);
 
-		NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location2, Rotation, ActorSpawnParameters);
+		/*AngleX = DoRaycast(World, X, Y, Length, Width);
+		if (AngleX != -1000.0f) {
+			//NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location2, Rotation, ActorSpawnParameters);
+			SpawnStatus = DoSpawn(World, ActorToSpawn, Location2, Rotation);
+		}*/
+
+		SpawnStatus = DoRaycast(World, ActorToSpawn, Location2, Rotation, Length, Width);
 		
 		//if the spawn fails again, then try a binary fission using the area approach
-		if (!IsValid(NewBacteria)) {
+		if (!SpawnStatus) {
 			FissionArea(CurrentLocation, CurrentRotation, ActorToSpawn, World, Length, Width);
 		}
-		else {
-			//DoRaycast(World, Location2, Rotation, Length);
-		}
 
-	}
-	else {
-		//DoRaycast(World, Location, Rotation, Length);
 	}
 
 }
@@ -408,84 +441,127 @@ void UBinaryFission::FissionArea(FVector CurrentLocation, FRotator CurrentRotati
 
 	FActorSpawnParameters ActorSpawnParameters;
 
-	AActor* NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
-
+	DoRaycast(World, ActorToSpawn, Location, Rotation, Length, Width);
+	/*
+	if (AngleX != -1000.0f) {
+		//AActor* NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
+		DoSpawn(World, ActorToSpawn, Location, Rotation);
+	}
+	*/
 }
 
-void UBinaryFission::DoRaycast(UWorld* World, FVector Location, FRotator CurrentRotation, float Length) {
-	
-	float X1 = Location.X;
-	float X2, X3;
-	float Y1 = Location.Y;
-	float Y2, Y3;
+bool UBinaryFission::DoRaycast(UWorld* World, TSubclassOf<AActor> ActorToSpawn, FVector Location, FRotator Rotation, float Length, float Width) {
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Rotation Z: %f"), CurrentRotation.Yaw));
+	float X1, X2;
+	float Y1, Y2;
+	float ZSuperiorBond, ZInferiorBond;
 
-	if (CurrentRotation.Yaw > 0.0f && CurrentRotation.Yaw < 90.0f) {
-		float Angle = CurrentRotation.Yaw * PI / 180;
-		float CosAngle = FGenericPlatformMath::Cos(Angle) * (Length / 2);
-		float SinAngle = FMath::Sin(Angle) * (Length / 2);
-		Y2 = Y1 - CosAngle;
-		X2 = X1 + SinAngle;
-		Y3 = Y1 + CosAngle;
-		X3 = X1 - SinAngle;
-	}
-	else {
-		if (CurrentRotation.Yaw > 90.0f && CurrentRotation.Yaw < 180.0f) {
-			float SupplementaryAngle = 180.0f - CurrentRotation.Yaw;
-			float Angle = SupplementaryAngle * PI / 180;
-			float CosAngle = FGenericPlatformMath::Cos(Angle) * (Length / 2);
-			float SinAngle = FMath::Sin(Angle) * (Length / 2);
-			Y2 = Y1 + CosAngle;
-			X2 = X1 + SinAngle;
-			Y3 = Y1 - CosAngle;
-			X3 = X1 - SinAngle;
+	float X = Location.X;
+	float Y = Location.Y;
+	float Z = Location.Z;
+
+	X1 = X + Width / 2.5;
+	X2 = X - Width / 2.5;
+	Y1 = Y + Width / 2.5;
+	Y2 = Y - Width / 2.5;
+	ZSuperiorBond = 50.0f;
+	ZInferiorBond = Width / 2;
+
+	FVector NewLocation0(X, Y, ZSuperiorBond);
+	FVector End0(X, Y, ZInferiorBond);
+	FHitResult Hit0;
+	bool HitSuccess0 = World->LineTraceSingleByChannel(Hit0, NewLocation0, End0, ECollisionChannel::ECC_GameTraceChannel1);
+	//DrawDebugLine(World, NewLocation0, End0, FColor(255, 255, 255), true, -1.f, 0, 0.3);
+
+	FVector NewLocation1(X, Y1, ZSuperiorBond);
+	FVector End1(X, Y1, ZInferiorBond);
+	FHitResult Hit1;
+	bool HitSuccess1 = World->LineTraceSingleByChannel(Hit1, NewLocation1, End1, ECollisionChannel::ECC_GameTraceChannel1);
+	//DrawDebugLine(World, NewLocation1, End1, FColor(255, 255, 255), true, -1.f, 0, 0.3);
+
+	FVector NewLocation2(X, Y2, ZSuperiorBond);
+	FVector End2(X, Y2, ZInferiorBond);
+	FHitResult Hit2;
+	bool HitSuccess2 = World->LineTraceSingleByChannel(Hit2, NewLocation2, End2, ECollisionChannel::ECC_GameTraceChannel1);
+	//DrawDebugLine(World, NewLocation2, End2, FColor(0, 255, 255), true, -1.f, 0, 0.3);
+
+	FVector NewLocation3(X1, Y, ZSuperiorBond);
+	FVector End3(X1, Y, ZInferiorBond);
+	FHitResult Hit3;
+	bool HitSuccess3 = World->LineTraceSingleByChannel(Hit3, NewLocation3, End3, ECollisionChannel::ECC_GameTraceChannel1);
+	//DrawDebugLine(World, NewLocation3, End3, FColor(255, 0, 0), true, -1.f, 0, 0.3);
+
+	FVector NewLocation4(X2, Y, ZSuperiorBond);
+	FVector End4(X2, Y, ZInferiorBond);
+	FHitResult Hit4;
+	bool HitSuccess4 = World->LineTraceSingleByChannel(Hit4, NewLocation4, End4, ECollisionChannel::ECC_GameTraceChannel1);
+	//DrawDebugLine(World, NewLocation4, End4, FColor(0, 0, 255), true, -1.f, 0, 0.3);
+
+	if (HitSuccess0 && HitSuccess1 && HitSuccess2 && HitSuccess3 && HitSuccess4) {
+
+		if (Hit0.Actor->GetName().Contains(TEXT("Bacteria")) ) {
+			return false;
+		}
+
+		//FVector NewLocation(X, Y, Hit0.Location.Z + Width/1.8);
+		FVector NewLocation(X, Y, Hit0.Location.Z + Width / 1.2);
+
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *Hit0.Actor->GetName()));
+		if (Hit1.Location.Z == Hit2.Location.Z && Hit3.Location.Z == Hit4.Location.Z) {
+			return DoSpawn(World, ActorToSpawn, Location, Rotation);
 		}
 		else {
-			if (CurrentRotation.Yaw < 0.0f && CurrentRotation.Yaw > -90.0f) {
-				float Angle = -CurrentRotation.Yaw * PI / 180;
-				float CosAngle = FGenericPlatformMath::Cos(Angle) * (Length / 2);
-				float SinAngle = FMath::Sin(Angle) * (Length / 2);
-				Y2 = Y1 - CosAngle;
-				X2 = X1 - SinAngle;
-				Y3 = Y1 + CosAngle;
-				X3 = X1 + SinAngle;
+			float DifferenceZ1 = UKismetMathLibrary::Abs(Hit1.Location.Z - Hit2.Location.Z);
+			float DifferenceZ2 = UKismetMathLibrary::Abs(Hit3.Location.Z - Hit4.Location.Z);
+			//if (DifferenceZ1 != 0 && DifferenceZ2 == 0) {
+			if (DifferenceZ1 != 0) {
+				if (Y1 > Y2) { //negative angle
+					float AngleRadians = UKismetMathLibrary::Atan(DifferenceZ1 / (Width / 2.5));
+					float AngleDegrees = AngleRadians * 180 / PI;
+					
+					float RotationX = -AngleDegrees;
+
+					//float InPitch, float InYaw, float InRoll
+					FRotator NewRotation(Rotation.Pitch, Rotation.Yaw, RotationX);
+
+					return DoSpawn(World, ActorToSpawn, NewLocation, NewRotation);
+				}
+				else { //positive angle
+					float AngleRadians = UKismetMathLibrary::Atan(DifferenceZ1 / (Width / 2.5));
+					float AngleDegrees = AngleRadians * 180 / PI;
+					
+					float RotationX = AngleDegrees;
+
+					//float InPitch, float InYaw, float InRoll
+					FRotator NewRotation(Rotation.Pitch, Rotation.Yaw, RotationX);
+
+					return DoSpawn(World, ActorToSpawn, NewLocation, NewRotation);
+
+				}
 			}
-			else { //CurrentRotation.Yaw < -90.0f && CurrentRotation.Yaw > -180.0f				
-				float SupplementaryAngle = 180.0f - (-CurrentRotation.Yaw);
-				float Angle = SupplementaryAngle * PI / 180;
-				float CosAngle = FGenericPlatformMath::Cos(Angle) * (Length / 2);
-				float SinAngle = FMath::Sin(Angle) * (Length / 2);
-				Y2 = Y1 + CosAngle;
-				X2 = X1 - SinAngle;
-				Y3 = Y1 - CosAngle;
-				X3 = X1 + SinAngle;
+			else {
+				return DoSpawn(World, ActorToSpawn, NewLocation, Rotation);
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Here")));
+				
+				if (DifferenceZ1 == 0 && DifferenceZ2 != 0) {
+					//return 0.0f;
+				}
 			}
 		}
 	}
 
-	FVector NewLocation(Location.X, Location.Y, 50.0f);
-	FVector End(Location.X, Location.Y, 0.0f);
-	FHitResult Hit;
-	bool bSuccess = World->LineTraceSingleByChannel(Hit, NewLocation, End, ECollisionChannel::ECC_GameTraceChannel1);
-	//DrawDebugLine(World, NewLocation, End, FColor(255, 255, 255), true, // sets weather or not the line is in the world permanently
-	DrawDebugLine(World, NewLocation, End, FColor(255, 255, 255), true, -1.f, 0, 0.3);
-	
-	FVector NewLocation2(X2, Y2, 50.0f);
-	FVector End2(X2, Y2, 0.0f);
-	FHitResult Hit2;
-	bool bSuccess2 = World->LineTraceSingleByChannel(Hit2, NewLocation2, End2, ECollisionChannel::ECC_GameTraceChannel1);
-	DrawDebugLine(World, NewLocation2, End2, FColor(0, 255, 255), true, -1.f, 0, 0.3);
-	
-	FVector NewLocation3(X3, Y3, 50.0f);
-	FVector End3(X3, Y3, 0.0f);
-	FHitResult Hit3;
-	bool bSuccess3 = World->LineTraceSingleByChannel(Hit3, NewLocation3, End3, ECollisionChannel::ECC_GameTraceChannel1);
-	DrawDebugLine(World, NewLocation3, End3, FColor(255, 0, 0), true, -1.f, 0, 0.3);
-	
+	return DoSpawn(World, ActorToSpawn, Location, Rotation);
+}
 
-	if (bSuccess) {
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("We hit something")));
-		//Hit.Location;
+bool UBinaryFission::DoSpawn(UWorld* World, TSubclassOf<AActor> ActorToSpawn, FVector Location, FRotator Rotation) {
+
+	FActorSpawnParameters ActorSpawnParameters;
+	AActor* NewBacteria = World->SpawnActor<AActor>(ActorToSpawn, Location, Rotation, ActorSpawnParameters);
+	if (!IsValid(NewBacteria)) {
+		return false;
 	}
+	else {
+		return true;
+	}
+
 }

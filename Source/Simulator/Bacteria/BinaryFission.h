@@ -24,6 +24,10 @@ private:
 
 	static void SimpleFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, 
 		float Length, float Width, UWorld* World);
+	static void SimpleFissionOnYAxis(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn,
+		float Length, float Width, UWorld* World);
+	static void SimpleFissionOnXAxis(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn,
+		float Length, float Width, UWorld* World);
 	static void ComplexFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, 
 		float Length, float Width, UWorld* World);
 	static void FissionArea(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, 
@@ -34,7 +38,8 @@ private:
 	static float ComputeX2(float B, float Slope, float U, float V, float R);
 	static float ComputeY2(float B, float Slope, float U, float V, float R);
 
-	static void DoRaycast(UWorld* World, FVector Location, FRotator CurrentRotation, float Length);
+	static bool DoRaycast(UWorld* World, TSubclassOf<AActor> ActorToSpawn, FVector Location, FRotator Rotation, float Length, float Width);
+	static bool DoSpawn(UWorld* World, TSubclassOf<AActor> ActorToSpawn, FVector Location, FRotator Rotation);
 
 protected:
 	// Called when the game starts
