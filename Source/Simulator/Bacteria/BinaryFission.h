@@ -16,30 +16,38 @@ public:
 	// Sets default values for this component's properties
 	UBinaryFission();
 
-	//UFUNCTION(BlueprintCallable, Category = "Analytics", meta = (WorldContext = "ObjectWorld"))
 	UFUNCTION(BlueprintCallable, Category = "Analytics")
-		static void DoBinaryFission(TSubclassOf<AActor> ActorReference, AActor* Owner, float Length, float Width);
+		static int SelectBinaryFissionMethod(FRotator CurrentRotation);
+
+	UFUNCTION(BlueprintCallable, Category = "Analytics")
+		static int SelectSimpleFissionWay(FRotator CurrentRotation);
+
+	UFUNCTION(BlueprintCallable, Category = "Analytics")
+		static FVector GetCoordinatesFissionOnYAxis(FVector CurrentLocation, float Length, bool choice);
+
+	UFUNCTION(BlueprintCallable, Category = "Analytics")
+		static FVector GetCoordinatesFissionOnXAxis(FVector CurrentLocation, float Length, bool choice);
+
+	UFUNCTION(BlueprintCallable, Category = "Analytics")
+		static FRotator GetSpawnRotation(FRotator CurrentRotation);
+
+	UFUNCTION(BlueprintCallable, Category = "Analytics")
+		static FVector GetVectorFissionArea(FVector CurrentLocation, float Length, float Width);
+
+	UFUNCTION(BlueprintCallable, Category = "Analytics")
+		static void GetEquationLine(FVector CurrentLocation, FRotator CurrentRotation, float& Slope, 
+			float& Intercept, float Pi);
+
+	UFUNCTION(BlueprintCallable, Category = "Analytics")
+		static FVector GetIntersectionSolution(FVector CurrentLocation, float Intercept, float Slope,
+			float Length, bool choice);
 
 private:
-
-	static void SimpleFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, 
-		float Length, float Width, UWorld* World);
-	static void SimpleFissionOnYAxis(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn,
-		float Length, float Width, UWorld* World);
-	static void SimpleFissionOnXAxis(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn,
-		float Length, float Width, UWorld* World);
-	static void ComplexFission(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, 
-		float Length, float Width, UWorld* World);
-	static void FissionArea(FVector CurrentLocation, FRotator CurrentRotation, TSubclassOf<AActor> ActorToSpawn, 
-		UWorld* World, float Length, float Width);
 
 	static float ComputeX1(float B, float Slope, float U, float V, float R);
 	static float ComputeY1(float B, float Slope, float U, float V, float R);
 	static float ComputeX2(float B, float Slope, float U, float V, float R);
 	static float ComputeY2(float B, float Slope, float U, float V, float R);
-
-	static bool DoRaycast(UWorld* World, TSubclassOf<AActor> ActorToSpawn, FVector Location, FRotator Rotation, float Length, float Width);
-	static bool DoSpawn(UWorld* World, TSubclassOf<AActor> ActorToSpawn, FVector Location, FRotator Rotation);
 
 protected:
 	// Called when the game starts
