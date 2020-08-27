@@ -29,9 +29,6 @@ public:
 		static FVector GetCoordinatesFissionOnXAxis(FVector CurrentLocation, float Length, bool choice);
 
 	UFUNCTION(BlueprintCallable, Category = "Analytics")
-		static FRotator GetSpawnRotation(FRotator CurrentRotation);
-
-	UFUNCTION(BlueprintCallable, Category = "Analytics")
 		static FVector GetVectorFissionArea(FVector CurrentLocation, float Length, float Width);
 
 	UFUNCTION(BlueprintCallable, Category = "Analytics")

@@ -5,10 +5,6 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "GenericPlatform/GenericPlatformMath.h"
 
-//macros to define the range of random rotation on Z axis to spawn a bacterium
-#define UPPER_BOUND_ROTATION 40.0f
-#define LOWER_BOUND_ROTATION -40.0f
-
 // Sets default values for this component's properties
 UBinaryFission::UBinaryFission()
 {
@@ -70,16 +66,6 @@ int UBinaryFission::SelectSimpleFissionWay(FRotator CurrentRotation) {
 		return 2; //on X axis
 	}
 	
-}
-
-FRotator UBinaryFission::GetSpawnRotation(FRotator CurrentRotation) {
-	float RotationX = CurrentRotation.Roll;
-	float RotationY = CurrentRotation.Pitch;
-	float RotationZ = CurrentRotation.Yaw + FMath::RandRange(LOWER_BOUND_ROTATION, UPPER_BOUND_ROTATION);
-
-	//float InPitch, float InYaw, float InRoll
-	FRotator Rotation(RotationY, RotationZ, RotationX);
-	return Rotation;
 }
 
 FVector UBinaryFission::GetCoordinatesFissionOnYAxis(FVector CurrentLocation, float Length, bool choice) {
