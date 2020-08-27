@@ -8,7 +8,7 @@
 //macros to define the range of random rotation on Z axis to spawn a bacterium
 #define UPPER_BOUND_ROTATION 40.0f
 #define LOWER_BOUND_ROTATION -40.0f
-#define PI 3.141593
+//#define PI 3.141593
 
 // Sets default values for this component's properties
 UBinaryFission::UBinaryFission()
