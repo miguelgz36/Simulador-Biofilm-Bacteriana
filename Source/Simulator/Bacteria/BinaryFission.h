@@ -23,10 +23,7 @@ public:
 		static int SelectSimpleFissionWay(FRotator CurrentRotation);
 
 	UFUNCTION(BlueprintCallable, Category = "Analytics")
-		static FVector GetCoordinatesFissionOnYAxis(FVector CurrentLocation, float Length, bool choice);
-
-	UFUNCTION(BlueprintCallable, Category = "Analytics")
-		static FVector GetCoordinatesFissionOnXAxis(FVector CurrentLocation, float Length, bool choice);
+		static FVector GetCoordinatesSimpleFission(FVector CurrentLocation, float Length, bool choice, int option);
 
 	UFUNCTION(BlueprintCallable, Category = "Analytics")
 		static FVector GetVectorFissionArea(FVector CurrentLocation, float Length, float Width);

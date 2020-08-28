@@ -34,6 +34,9 @@ void UBinaryFission::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	// ...
 }
 
+//Returns the binary fission type to try according to the angle of bacterium on Z axis
+//For angles near to 0°, 90° and 180° the position to spawn is easily calculated using the simple fission
+//Otherwise the complex fission is used
 int UBinaryFission::SelectBinaryFissionMethod(FRotator CurrentRotation) {
 
 	if ((CurrentRotation.Yaw >= 0.0f && CurrentRotation.Yaw <= 10.0f) ||
@@ -52,6 +55,9 @@ int UBinaryFission::SelectBinaryFissionMethod(FRotator CurrentRotation) {
 	}
 }
 
+//Returns the simple binary fission way to try according to the angle of bacterium on Z axis
+//For angles near to 0° and 180° the position requires the change of Y coordinate only
+//Otherwise the change of X coordinate only is required
 int UBinaryFission::SelectSimpleFissionWay(FRotator CurrentRotation) {
 
 	if ((CurrentRotation.Yaw >= 0.0f && CurrentRotation.Yaw <= 10.0f) ||
@@ -68,36 +74,38 @@ int UBinaryFission::SelectSimpleFissionWay(FRotator CurrentRotation) {
 	
 }
 
-FVector UBinaryFission::GetCoordinatesFissionOnYAxis(FVector CurrentLocation, float Length, bool choice) {
+//Returns the coordinates to try spawn, with Y coordinate varying and X constant (if option is 1)
+//or X coordinate varying and Y constant (if option is 2)
+FVector UBinaryFission::GetCoordinatesSimpleFission(FVector CurrentLocation, float Length, bool choice, int option) {
+	
 	float X, Y, Z;
 	X = CurrentLocation.X;
 	Y = CurrentLocation.Y;
 	Z = CurrentLocation.Z;
-	if (choice) {
-		Y += Length;
+
+	if (option == 1) { //on Y axis
+		if (choice) {
+			Y += Length;
+		}
+		else {
+			Y -= Length;
+		}
 	}
-	else {
-		Y -= Length;
+	else { //on X axis
+		if (choice) {
+			X += Length;
+		}
+		else {
+			X -= Length;
+		}
 	}
+	
 	FVector Location(X, Y, Z);
 	return Location;
 }
 
-FVector UBinaryFission::GetCoordinatesFissionOnXAxis(FVector CurrentLocation, float Length, bool choice) {
-	float X, Y, Z;
-	X = CurrentLocation.X;
-	Y = CurrentLocation.Y;
-	Z = CurrentLocation.Z;
-	if (choice) {
-		X += Length;
-	}
-	else {
-		X -= Length;
-	}
-	FVector Location(X, Y, Z);
-	return Location;
-}
-
+//Returns (by reference) the slope and intercept of equation of the line that traverses the bacterium 
+//through the center in the XY plane
 void UBinaryFission::GetEquationLine(FVector CurrentLocation, FRotator CurrentRotation, float &Slope, 
 	float &Intercept, float Pi) {
 
@@ -142,6 +150,9 @@ void UBinaryFission::GetEquationLine(FVector CurrentLocation, FRotator CurrentRo
 
 }
 
+//Gets an intersection solution in the XY plane for the intersection between the equation of the line
+//that traverses through the center of bacterium and the the circumference centered in the mother cell 
+//centre with radius equal to the length of bacterium
 FVector UBinaryFission::GetIntersectionSolution(FVector CurrentLocation, float Intercept, float Slope, 
 	float Length, bool choice) {
 
@@ -224,6 +235,7 @@ float UBinaryFission::ComputeY2(float B, float Slope, float U, float V, float R)
 	return Y;
 }
 
+//Gets a random location to spawn which is located within the inmediate surrounding area of bacterium
 FVector UBinaryFission::GetVectorFissionArea(FVector CurrentLocation, float Length, float Width) {
 
 	float UPPER_BOUND = Length;
@@ -260,7 +272,7 @@ FVector UBinaryFission::GetVectorFissionArea(FVector CurrentLocation, float Leng
 	}
 	float YPoint = CurrentLocation.Y + TempY;
 
-	float ZPoint = CurrentLocation.Z + Width / 2;
+	float ZPoint = CurrentLocation.Z;
 
 	FVector Location(XPoint, YPoint, ZPoint);
 
