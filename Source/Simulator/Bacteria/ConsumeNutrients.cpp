@@ -39,10 +39,10 @@ float UConsumeNutrients::GetNutrients(float AvailableNutrients, float EnergyLeve
 
 	if (AvailableNutrients > 0.0f) {
 		if (AvailableNutrients >= NutrientAbsorptionRate) {
-			NewEnergyLevel = EnergyLevel + NutrientAbsorptionRate;
+			NewEnergyLevel = EnergyLevel * NutrientAbsorptionRate * AvailableNutrients;
 		}
 		else {
-			NewEnergyLevel = EnergyLevel + AvailableNutrients;
+			NewEnergyLevel = EnergyLevel * AvailableNutrients;
 		}
 	}
 	else {
