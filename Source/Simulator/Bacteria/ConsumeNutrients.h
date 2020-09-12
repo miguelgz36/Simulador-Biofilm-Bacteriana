@@ -21,7 +21,7 @@ public:
 			float MaximumEnergyLevel);
 
 	UFUNCTION(BlueprintCallable, Category = "Analytics")
-		static float UpdateNutrientAbsorptionRate(float EnergyLevel);
+		static float UpdateNutrientAbsorptionRate(float EnergyLevel, float FactorAbsorption);
 
 protected:
 	// Called when the game starts

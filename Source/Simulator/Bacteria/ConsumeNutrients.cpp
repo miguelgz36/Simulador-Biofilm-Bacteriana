@@ -36,26 +36,21 @@ float UConsumeNutrients::GetNutrients(float AvailableNutrients, float EnergyLeve
 	float MaximumEnergyLevel) {
 
 	float NewEnergyLevel;
-
-	if (AvailableNutrients > 0.0f) {
-		if (AvailableNutrients >= NutrientAbsorptionRate) {
-			NewEnergyLevel = EnergyLevel * NutrientAbsorptionRate * AvailableNutrients;
-		}
-		else {
-			NewEnergyLevel = EnergyLevel * AvailableNutrients;
-		}
+	if (AvailableNutrients >= NutrientAbsorptionRate) {
+		NewEnergyLevel = EnergyLevel + NutrientAbsorptionRate;
 	}
 	else {
-		NewEnergyLevel = EnergyLevel;
+		NewEnergyLevel = EnergyLevel + AvailableNutrients;
 	}
 	return NewEnergyLevel;
+
 }
 
-float UConsumeNutrients::UpdateNutrientAbsorptionRate(float EnergyLevel) {
+float UConsumeNutrients::UpdateNutrientAbsorptionRate(float EnergyLevel, float FactorAbsorption) {
 
 	float NewNutrientAbsorptionRate;
 
-	NewNutrientAbsorptionRate = EnergyLevel*0.25;
+	NewNutrientAbsorptionRate = EnergyLevel * FactorAbsorption;
 
 	return NewNutrientAbsorptionRate;
 
