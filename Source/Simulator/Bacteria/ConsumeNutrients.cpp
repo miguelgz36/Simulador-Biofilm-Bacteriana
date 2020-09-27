@@ -42,6 +42,9 @@ float UConsumeNutrients::GetNutrients(float AvailableNutrients, float EnergyLeve
 	else {
 		NewEnergyLevel = EnergyLevel + AvailableNutrients;
 	}
+	if (NewEnergyLevel > MaximumEnergyLevel) {
+		NewEnergyLevel = MaximumEnergyLevel;
+	}
 	return NewEnergyLevel;
 
 }
