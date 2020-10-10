@@ -3,4 +3,33 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Simulator.generated.h"
+
+USTRUCT(BlueprintType)
+struct FS_BacteriaAreaPerTime
+{
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(BlueprintReadWrite, Category = Variables)
+		int NumberTicks;
+	UPROPERTY(BlueprintReadWrite, Category = Variables)
+		int NumberBacteria;
+	UPROPERTY(BlueprintReadWrite, Category = Variables)
+		float TotalArea;
+};
+
+USTRUCT(BlueprintType)
+struct FS_SimulationConfiguration
+{
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(BlueprintReadWrite, Category = Variables)
+		FString SurfaceType;
+	UPROPERTY(BlueprintReadWrite, Category = Variables)
+		FString BacteriaType;
+	UPROPERTY(BlueprintReadWrite, Category = Variables)
+		float UpdateRatePerSize;
+	UPROPERTY(BlueprintReadWrite, Category = Variables)
+		float Temperature;
+};
 
