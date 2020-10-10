@@ -28,7 +28,7 @@ struct FS_SimulationConfiguration
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
 		FString BacteriaType;
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
-		float UpdateRatePerSize;
+		float FactorNutrientUptakePerSize;
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
 		float Temperature;
 };
