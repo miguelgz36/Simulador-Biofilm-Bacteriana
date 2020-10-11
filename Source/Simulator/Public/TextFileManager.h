@@ -11,6 +11,8 @@
 #include "Dom/JsonObject.h"
 #include "Dom/JsonValue.h"
 #include "Containers/Array.h"
+#include "JsonObjectConverter.h"
+#include "JsonObjectWrapper.h"
 
 #include "../Simulator.h"
 
@@ -29,17 +31,11 @@ class SIMULATOR_API UTextFileManager : public UBlueprintFunctionLibrary
 			bool AllowOverWriting);
 
 	UFUNCTION(BlueprintCallable, Category = "TextFile", meta = (Keywords = "Save"))
-		static FString ArrayBacteriaPerTimeToJsonString(FS_SimulationConfiguration Configuration, TArray<FS_BacteriaAreaPerTime> StructBacteriaPerTime);
+		static FString SimulationDataToJsonString(FS_SimulationConfiguration SimulationConfiguration, 
+			TArray<FS_SimulationDataPerTimeAux> ArraySimulationDataPerTime);
 
 	UFUNCTION(BlueprintCallable, Category = "TextFile", meta = (Keywords = "Save"))
 		static bool SaveStringToFile(FString SaveDirectory, FString FileName, FString StringToSave,
 			bool AllowOverWriting);
-
-	UFUNCTION(BlueprintCallable, Category = "TextFile", meta = (Keywords = "Save"))
-		static bool SaveConfigurationFile(FString SaveDirectory, FString FileName, FS_SimulationConfiguration Configuration,
-			bool AllowOverWriting);
-
-	UFUNCTION(BlueprintCallable, Category = "TextFile", meta = (Keywords = "Save"))
-		static FS_SimulationConfiguration LoadConfigurationFile(FString SaveDirectory, FString FileName);
 
 };

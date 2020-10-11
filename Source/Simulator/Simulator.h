@@ -6,7 +6,7 @@
 #include "Simulator.generated.h"
 
 USTRUCT(BlueprintType)
-struct FS_BacteriaAreaPerTime
+struct FS_SimulationDataPerTimeAux
 {
 	GENERATED_USTRUCT_BODY();
 
@@ -15,7 +15,7 @@ struct FS_BacteriaAreaPerTime
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
 		int NumberBacteria;
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
-		float TotalArea;
+		float AreaBiofilm;
 };
 
 USTRUCT(BlueprintType)
@@ -31,5 +31,15 @@ struct FS_SimulationConfiguration
 		float FactorNutrientUptakePerSize;
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
 		float Temperature;
+
+	friend FArchive& operator<<(FArchive& Archive, FS_SimulationConfiguration& Configuration)
+	{
+		Archive << Configuration.SurfaceType;
+		Archive << Configuration.BacteriaType;
+		Archive << Configuration.FactorNutrientUptakePerSize;
+		Archive << Configuration.Temperature;
+
+		return Archive;
+	}
 };
 
