@@ -22,13 +22,13 @@ bool UTextFileManager::SaveArrayStringsToFile(FString SaveDirectory, FString Fil
 	return FFileHelper::SaveStringArrayToFile(ArrayStrings, *SaveDirectory);
 }
 
-FString UTextFileManager::SimulationDataToJsonString(FS_SimulationConfiguration SimulationConfiguration,
+FString UTextFileManager::SimulationDataToJsonString(FS_SimulationConfigurationAux SimulationConfiguration,
 	TArray<FS_SimulationDataPerTimeAux> ArraySimulationDataPerTime)
 {
 	TSharedPtr< FJsonObject > GeneralJsonObject = MakeShareable(new FJsonObject);
 
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
-	FJsonObjectConverter::UStructToJsonObject(FS_SimulationConfiguration::StaticStruct(), &SimulationConfiguration, JsonObject, 0, 0);
+	FJsonObjectConverter::UStructToJsonObject(FS_SimulationConfigurationAux::StaticStruct(), &SimulationConfiguration, JsonObject, 0, 0);
 
 	GeneralJsonObject->SetField(TEXT("simulationConfiguration"), MakeShareable(new FJsonValueObject(JsonObject)));
 

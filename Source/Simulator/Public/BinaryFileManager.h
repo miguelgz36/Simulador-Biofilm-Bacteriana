@@ -24,10 +24,10 @@ class SIMULATOR_API UBinaryFileManager : public UBlueprintFunctionLibrary
 
 	UFUNCTION(BlueprintCallable, Category = "BinaryFile", meta = (Keywords = "Save"))
 		static bool SaveConfigurationFile(FString SaveDirectory, FString FileName,
-			FS_SimulationConfiguration Configuration, bool AllowOverWriting);
+			FS_SimulationConfigurationAux Configuration, bool AllowOverWriting);
 
 	UFUNCTION(BlueprintCallable, Category = "BinaryFile", meta = (Keywords = "Save"))
 		static bool LoadConfigurationFile(FString SaveDirectory, FString FileName,
-			FS_SimulationConfiguration& Configuration);
+			FS_SimulationConfigurationAux& Configuration);
 	
 };

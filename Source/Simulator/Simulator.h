@@ -15,11 +15,11 @@ struct FS_SimulationDataPerTimeAux
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
 		int NumberBacteria;
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
-		float AreaBiofilm;
+		float BiofilmArea;
 };
 
 USTRUCT(BlueprintType)
-struct FS_SimulationConfiguration
+struct FS_SimulationConfigurationAux
 {
 	GENERATED_USTRUCT_BODY();
 
@@ -63,7 +63,7 @@ struct FS_SimulationConfiguration
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
 		int InitialNumberObjectPool;
 
-	friend FArchive& operator<<(FArchive& Archive, FS_SimulationConfiguration& Configuration)
+	friend FArchive& operator<<(FArchive& Archive, FS_SimulationConfigurationAux& Configuration)
 	{
 		Archive << Configuration.Bacteria;
 		Archive << Configuration.Surface;		

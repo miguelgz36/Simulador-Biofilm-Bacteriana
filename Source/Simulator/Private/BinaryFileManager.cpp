@@ -4,7 +4,7 @@
 #include "BinaryFileManager.h"
 
 bool UBinaryFileManager::SaveConfigurationFile(FString SaveDirectory, FString FileName,
-	FS_SimulationConfiguration Configuration, bool AllowOverWriting = false)
+	FS_SimulationConfigurationAux Configuration, bool AllowOverWriting = false)
 {
 
 	//Set complete file path
@@ -37,7 +37,7 @@ bool UBinaryFileManager::SaveConfigurationFile(FString SaveDirectory, FString Fi
 }
 
 bool UBinaryFileManager::LoadConfigurationFile(FString SaveDirectory, FString FileName,
-	FS_SimulationConfiguration& Configuration) {
+	FS_SimulationConfigurationAux& Configuration) {
 
 	//Set complete file path
 	SaveDirectory += "\\";
