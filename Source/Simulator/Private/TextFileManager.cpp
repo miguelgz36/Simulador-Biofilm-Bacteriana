@@ -3,6 +3,7 @@
 
 #include "TextFileManager.h"
 
+//Saves an array of string to a text file
 bool UTextFileManager::SaveArrayStringsToFile(FString SaveDirectory, FString FileName, TArray<FString> ArrayStrings,
 	bool AllowOverWriting = false)
 {
@@ -22,6 +23,7 @@ bool UTextFileManager::SaveArrayStringsToFile(FString SaveDirectory, FString Fil
 	return FFileHelper::SaveStringArrayToFile(ArrayStrings, *SaveDirectory);
 }
 
+//Returns a JSON string using a FJsonObject build with the specified SimulationConfiguration and SimulationData
 FString UTextFileManager::SimulationDataToJsonString(FS_SimulationConfigurationAux SimulationConfiguration,
 	TArray<FS_SimulationDataPerTimeAux> ArraySimulationDataPerTime)
 {
@@ -52,6 +54,7 @@ FString UTextFileManager::SimulationDataToJsonString(FS_SimulationConfigurationA
 	return OutputString;
 }
 
+//Saves a string to a text file
 bool UTextFileManager::SaveStringToFile(FString SaveDirectory, FString FileName, FString StringToSave,
 	bool AllowOverWriting = false)
 {

@@ -20,8 +20,6 @@ class SIMULATOR_API UBinaryFileManager : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
-	//Save and load configuration binary file
-
 	UFUNCTION(BlueprintCallable, Category = "BinaryFile", meta = (Keywords = "Save"))
 		static bool SaveConfigurationFile(FString SaveDirectory, FString FileName,
 			FS_SimulationConfigurationAux Configuration, bool AllowOverWriting);

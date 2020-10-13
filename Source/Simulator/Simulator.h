@@ -63,6 +63,7 @@ struct FS_SimulationConfigurationAux
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
 		int InitialNumberObjectPool;
 
+	//function used to facilitate serialization of this Struct
 	friend FArchive& operator<<(FArchive& Archive, FS_SimulationConfigurationAux& Configuration)
 	{
 		Archive << Configuration.Bacteria;

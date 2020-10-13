@@ -3,6 +3,7 @@
 
 #include "BinaryFileManager.h"
 
+//Saves the specified SimulationConfiguration to a binary file
 bool UBinaryFileManager::SaveConfigurationFile(FString SaveDirectory, FString FileName,
 	FS_SimulationConfigurationAux Configuration, bool AllowOverWriting = false)
 {
@@ -36,6 +37,7 @@ bool UBinaryFileManager::SaveConfigurationFile(FString SaveDirectory, FString Fi
 	return result;
 }
 
+//Retrieves a SimulationConfiguration from a specified binary file
 bool UBinaryFileManager::LoadConfigurationFile(FString SaveDirectory, FString FileName,
 	FS_SimulationConfigurationAux& Configuration) {
 
