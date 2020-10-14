@@ -53,15 +53,13 @@ struct FS_SimulationConfigurationAux
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
 		float EnergySpentToMove;
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
-		float EnergySpentToSurvive;
-	UPROPERTY(BlueprintReadWrite, Category = Variables)
 		int MaximumMovementAttempts;
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
 		float MinimumNutrientLevel;
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
 		float UnitsRadiusToMove;
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
-		int InitialNumberObjectPool;
+		int64 InitialNumberObjectPool;
 
 	//function used to facilitate serialization of this Struct
 	friend FArchive& operator<<(FArchive& Archive, FS_SimulationConfigurationAux& Configuration)
@@ -79,7 +77,6 @@ struct FS_SimulationConfigurationAux
 		Archive << Configuration.NutrientLevelThresholdToMove;
 		Archive << Configuration.MinimumEnergyLevel;
 		Archive << Configuration.EnergySpentToMove;
-		Archive << Configuration.EnergySpentToSurvive;
 		Archive << Configuration.MaximumMovementAttempts;
 		Archive << Configuration.MinimumNutrientLevel;
 		Archive << Configuration.UnitsRadiusToMove;
