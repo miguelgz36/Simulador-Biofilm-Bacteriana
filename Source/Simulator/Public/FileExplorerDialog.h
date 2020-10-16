@@ -23,6 +23,10 @@ class SIMULATOR_API UFileExplorerDialog : public UBlueprintFunctionLibrary
 			const FString& FileTypes, TArray<FString>& OutFileNames);
 
 	UFUNCTION(BlueprintCallable, Category = "FileExplorerDialog")
+		static bool OpenDirectoryDialog(const FString& DialogTitle, const FString& DefaultPath,
+			FString& OutFolderName);
+
+	UFUNCTION(BlueprintCallable, Category = "FileExplorerDialog")
 		static bool SaveFileDialog(const FString& DialogTitle, const FString& DefaultPath,
 			const FString& DefaultFile, const FString& FileTypes, TArray < FString >& OutFilenames);
 	
