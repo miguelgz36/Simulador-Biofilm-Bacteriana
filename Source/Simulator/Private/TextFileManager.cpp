@@ -23,7 +23,8 @@ bool UTextFileManager::SaveArrayStringsToFile(FString SaveDirectory, FString Fil
 	return FFileHelper::SaveStringArrayToFile(ArrayStrings, *SaveDirectory);
 }
 
-//Returns a JSON string using a FJsonObject build with the specified SimulationConfiguration and SimulationData
+//Creates a string in JSON format using a FJsonObject build with the specified configuration and data from simulation.
+//The boolean result of operation is returned. String is returned using the variable OutputString.
 bool UTextFileManager::SimulationDataToJsonString(FS_SimulationConfigurationAux SimulationConfiguration,
 	TArray<FS_SimulationDataPerTimeAux> ArraySimulationDataPerTime, FString& OutputString)
 {
