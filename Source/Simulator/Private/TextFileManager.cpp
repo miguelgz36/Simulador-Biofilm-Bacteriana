@@ -24,8 +24,8 @@ bool UTextFileManager::SaveArrayStringsToFile(FString SaveDirectory, FString Fil
 }
 
 //Returns a JSON string using a FJsonObject build with the specified SimulationConfiguration and SimulationData
-FString UTextFileManager::SimulationDataToJsonString(FS_SimulationConfigurationAux SimulationConfiguration,
-	TArray<FS_SimulationDataPerTimeAux> ArraySimulationDataPerTime)
+bool UTextFileManager::SimulationDataToJsonString(FS_SimulationConfigurationAux SimulationConfiguration,
+	TArray<FS_SimulationDataPerTimeAux> ArraySimulationDataPerTime, FString& OutputString)
 {
 	//Create JsonObject that is going to contain the whole JSON structure
 	TSharedPtr< FJsonObject > GeneralJsonObject = MakeShareable(new FJsonObject);
@@ -59,11 +59,13 @@ FString UTextFileManager::SimulationDataToJsonString(FS_SimulationConfigurationA
 	GeneralJsonObject->SetArrayField("simulationData", JsonValueArray);
 
 	//Convert GeneralJsonObject to string and save it in OutputString
-	FString OutputString;
-	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
-	FJsonSerializer::Serialize(GeneralJsonObject.ToSharedRef(), Writer);
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);	
 
-	return OutputString;
+	bool Result = FJsonSerializer::Serialize(GeneralJsonObject.ToSharedRef(), Writer);
+
+	Writer->Close();
+
+	return Result;
 }
 
 //Saves a string to a text file. The boolean result of operation is returned.
