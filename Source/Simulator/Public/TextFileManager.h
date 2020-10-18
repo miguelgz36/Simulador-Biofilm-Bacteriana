@@ -31,13 +31,8 @@ class SIMULATOR_API UTextFileManager : public UBlueprintFunctionLibrary
 			bool AllowOverWriting);
 
 	UFUNCTION(BlueprintCallable, Category = "TextFile", meta = (Keywords = "Save"))
-<<<<<<< HEAD
 		static bool SimulationDataToJsonString(FS_SimulationConfigurationAux SimulationConfiguration, 
 			TArray<FS_SimulationDataPerTimeAux> ArraySimulationDataPerTime, FString& OutputString);
-=======
-		static FString SimulationDataToJsonString(FS_SimulationConfigurationAux SimulationConfiguration, 
-			TArray<FS_SimulationDataPerTimeAux> ArraySimulationDataPerTime);
->>>>>>> origin/develop
 
 	UFUNCTION(BlueprintCallable, Category = "TextFile", meta = (Keywords = "Save"))
 		static bool SaveStringToFile(FString SaveDirectory, FString FileName, FString StringToSave,
