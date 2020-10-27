@@ -59,7 +59,7 @@ struct FS_SimulationConfigurationAux
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
 		float UnitsRadiusToMove;
 	UPROPERTY(BlueprintReadWrite, Category = Variables)
-		int64 InitialNumberObjectPool;
+		int InitialNumberBacteriaInMemory;
 
 	//function used to facilitate serialization of this Struct
 	friend FArchive& operator<<(FArchive& Archive, FS_SimulationConfigurationAux& Configuration)
@@ -80,7 +80,7 @@ struct FS_SimulationConfigurationAux
 		Archive << Configuration.MaximumMovementAttempts;
 		Archive << Configuration.MinimumNutrientLevel;
 		Archive << Configuration.UnitsRadiusToMove;
-		Archive << Configuration.InitialNumberObjectPool;
+		Archive << Configuration.InitialNumberBacteriaInMemory;
 
 		return Archive;
 	}
