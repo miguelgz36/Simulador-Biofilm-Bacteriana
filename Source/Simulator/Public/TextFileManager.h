@@ -38,4 +38,7 @@ class SIMULATOR_API UTextFileManager : public UBlueprintFunctionLibrary
 		static bool SaveStringToFile(FString SaveDirectory, FString FileName, FString StringToSave,
 			bool AllowOverWriting);
 
+	UFUNCTION(BlueprintCallable, Category = "TextFile", meta = (Keywords = "Save"))
+		static bool BacteriaPositionsToJsonString(TArray<FString> BacteriaPositionsPerTime, FString& OutputString);
+
 };

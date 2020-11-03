@@ -88,3 +88,45 @@ bool UTextFileManager::SaveStringToFile(FString SaveDirectory, FString FileName,
 
 	return FFileHelper::SaveStringToFile(StringToSave, *SaveDirectory);
 }
+
+bool UTextFileManager::BacteriaPositionsToJsonString(TArray<FString> BacteriaPositionsPerTime, FString& OutputString)
+{
+	TSharedPtr< FJsonObject > GeneralJsonObject = MakeShareable(new FJsonObject);
+
+	//Create array of JsonValue to save each data row of ArraySimulationDataPerTime
+	TArray< TSharedPtr<FJsonValue> > JsonValueArray;
+
+	TSharedPtr<FJsonObject> JsonObjectItem = MakeShareable(new FJsonObject);
+	TSharedRef< FJsonValueObject > JsonValue = MakeShareable(new FJsonValueObject(JsonObjectItem));
+
+	TArray<FString> ElementsEachLine;
+	for (FString& Each : BacteriaPositionsPerTime)
+	{
+		Each.ParseIntoArray(ElementsEachLine, TEXT(","), true);
+
+		//Convert a row in ArraySimulationDataPerTime to JSON format and save it in JsonObjectItem
+		JsonObjectItem = MakeShareable(new FJsonObject);
+
+		JsonObjectItem->SetNumberField("numberTicks", FCString::Atof(*ElementsEachLine[0]));
+		JsonObjectItem->SetNumberField("positionX", FCString::Atof(*ElementsEachLine[1]));
+		JsonObjectItem->SetNumberField("positionY", FCString::Atof(*ElementsEachLine[2]));
+		JsonObjectItem->SetNumberField("positionZ", FCString::Atof(*ElementsEachLine[3]));
+
+		//Save JsonObjectItem as JsonValue and add this to the array
+		JsonValue = MakeShareable(new FJsonValueObject(JsonObjectItem));
+		JsonValueArray.Add(JsonValue);
+	}
+
+	//Add item "simulationData" to GeneralJsonObject. 
+	//This item contains the values of each row in ArraySimulationDataPerTime
+	GeneralJsonObject->SetArrayField("bacteriaPositionsPerTime", JsonValueArray);
+
+	//Convert GeneralJsonObject to string and save it in OutputString
+	TSharedRef< TJsonWriter<> > Writer = TJsonWriterFactory<>::Create(&OutputString);
+
+	bool Result = FJsonSerializer::Serialize(GeneralJsonObject.ToSharedRef(), Writer);
+
+	Writer->Close();
+
+	return Result;
+}
