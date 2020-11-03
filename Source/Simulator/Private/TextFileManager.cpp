@@ -96,7 +96,7 @@ bool UTextFileManager::BacteriaPositionsToJsonString(TArray<FString> BacteriaPos
 	//Create array of JsonValue to save each data row of ArraySimulationDataPerTime
 	TArray< TSharedPtr<FJsonValue> > JsonValueArray;
 
-	TSharedPtr<FJsonObject> JsonObjectItem = MakeShareable(new FJsonObject);
+	TSharedRef<FJsonObject> JsonObjectItem = MakeShareable(new FJsonObject);
 	TSharedRef< FJsonValueObject > JsonValue = MakeShareable(new FJsonValueObject(JsonObjectItem));
 
 	TArray<FString> ElementsEachLine;
