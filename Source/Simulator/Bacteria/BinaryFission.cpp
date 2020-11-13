@@ -76,15 +76,15 @@ int UBinaryFission::SelectSimpleFissionWay(FRotator CurrentRotation) {
 
 //Returns the coordinates to try spawn, with Y coordinate varying and X constant (if option is 1)
 //or X coordinate varying and Y constant (if option is 2)
-FVector UBinaryFission::GetCoordinatesSimpleFission(FVector CurrentLocation, float Length, bool choice, int option) {
+FVector UBinaryFission::GetCoordinatesSimpleFission(FVector CurrentLocation, float Length, bool Choice, int Option) {
 	
 	float X, Y, Z;
 	X = CurrentLocation.X;
 	Y = CurrentLocation.Y;
 	Z = CurrentLocation.Z;
 
-	if (option == 1) { //on Y axis
-		if (choice) {
+	if (Option == 1) { //on Y axis
+		if (Choice) {
 			Y += Length;
 		}
 		else {
@@ -92,7 +92,7 @@ FVector UBinaryFission::GetCoordinatesSimpleFission(FVector CurrentLocation, flo
 		}
 	}
 	else { //on X axis
-		if (choice) {
+		if (Choice) {
 			X += Length;
 		}
 		else {
@@ -154,14 +154,14 @@ void UBinaryFission::GetEquationLine(FVector CurrentLocation, FRotator CurrentRo
 //that traverses through the center of bacterium and the the circumference centered in the mother cell 
 //centre with radius equal to the length of bacterium
 FVector UBinaryFission::GetIntersectionSolution(FVector CurrentLocation, float Intercept, float Slope, 
-	float Length, bool choice) {
+	float Length, bool Choice) {
 
 	float X, Y, Z;
 
 	float X1 = CurrentLocation.X;
 	float Y1 = CurrentLocation.Y;
 
-	if (choice) {		
+	if (Choice) {		
 		X = ComputeX1(Intercept, Slope, X1, Y1, Length);
 		Y = ComputeY1(Intercept, Slope, X1, Y1, Length);
 	}
