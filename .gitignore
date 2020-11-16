@@ -77,3 +77,11 @@ DerivedDataCache/*
 .DS_Store
 .DS_Store? 
 *.png
+
+#Binary files generated to save parameter configuration
+*.sav
+
+#Text files generated as report
+*.csv
+*.json
+
