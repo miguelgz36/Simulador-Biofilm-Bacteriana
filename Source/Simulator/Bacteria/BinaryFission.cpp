@@ -279,3 +279,46 @@ FVector UBinaryFission::GetVectorFissionArea(FVector CurrentLocation, float Leng
 	return Location;
 
 }
+
+FVector UBinaryFission::GetVectorEasyFission(FVector CurrentLocation, float Length) {
+	int LowerBound = 0;
+	int UpperBound = 7;
+	int X, Y;
+	int RandomValue = FMath::RandRange(LowerBound, UpperBound);
+	switch (RandomValue) {
+	case 0:
+		X = CurrentLocation.X - Length;
+		Y = CurrentLocation.Y + Length;
+		break;
+	case 1:
+		X = CurrentLocation.X;
+		Y = CurrentLocation.Y + Length;
+		break;
+	case 2:
+		X = CurrentLocation.X + Length;
+		Y = CurrentLocation.Y + Length;
+		break;
+	case 3:
+		X = CurrentLocation.X - Length;
+		Y = CurrentLocation.Y;
+		break;
+	case 4:
+		X = CurrentLocation.X + Length;
+		Y = CurrentLocation.Y;
+		break;
+	case 5:
+		X = CurrentLocation.X - Length;
+		Y = CurrentLocation.Y - Length;
+		break;
+	case 6:
+		X = CurrentLocation.X;
+		Y = CurrentLocation.Y - Length;
+		break;
+	case 7:
+		X = CurrentLocation.X + Length;
+		Y = CurrentLocation.Y - Length;
+		break;
+	}
+	FVector Location(X, Y, CurrentLocation.Z);
+	return Location;
+}

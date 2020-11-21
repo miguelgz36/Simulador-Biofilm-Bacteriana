@@ -36,6 +36,9 @@ public:
 		static FVector GetIntersectionSolution(FVector CurrentLocation, float Intercept, float Slope,
 			float Length, bool Choice);
 
+	UFUNCTION(BlueprintCallable, Category = "Analytics")
+		static FVector GetVectorEasyFission(FVector CurrentLocation, float Length);
+
 private:
 
 	static float ComputeX1(float B, float Slope, float U, float V, float R);
