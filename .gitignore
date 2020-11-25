@@ -72,3 +72,16 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# OS generated files
+.DS_Store
+.DS_Store? 
+*.png
+
+#Binary files generated to save parameter configuration
+*.sav
+
+#Text files generated as report
+*.csv
+*.json
+
